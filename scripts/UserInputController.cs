@@ -10,14 +10,14 @@ public partial class UserInputController : Control
 	{
 		GD.Print("gitspice");
 		ElementScene = GD.Load<PackedScene>("scenes/element.tscn");
-		RootGUINode = GetNode("/root/GUI/ElementContainer");
+		RootGUINode = GetNode("/root/main/ElementContainer");
 	}
 
     public override void _Input(InputEvent @event)
     {
 		if (@event is InputEventMouseButton e && e.ButtonIndex == MouseButton.Left && e.Pressed)
 		{
-			var newElement = ElementScene.Instantiate<Control>();
+			var newElement = ElementScene.Instantiate<Node2D>();
 			newElement.Position = e.Position;
 			RootGUINode.AddChild(newElement);
 		}
