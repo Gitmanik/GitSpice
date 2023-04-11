@@ -1,16 +1,35 @@
 using Godot;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
-public partial class Element : Node2D
+public partial class Element : Control
 {
-	// Called when the node enters the scene tree for the first time.
+	private List<ElementPort> Ports;
+
+	bool moving = false;
+
 	public override void _Ready()
 	{
-		GD.Print("new element");
+		Ports = GetNode("Ports").GetChildren().ToList().Cast<ElementPort>().ToList();
 	}
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
+    public void _TextureRectGuiInput(InputEvent @event)
+    {
+        if (@event is InputEventMouseButton mouseClick && mouseClick.ButtonIndex == MouseButton.Left && mouseClick.Pressed)
+		{
+			moving = !moving;
+			GD.Print($"{Name} {moving}");
+			GetViewport().SetInputAsHandled();
+		}
+    }
+
+	public override void _Input(InputEvent @event)
 	{
+		if (moving && @event is InputEventMouseMotion mouseMove)
+		{
+			Position = mouseMove.Position;
+			GetViewport().SetInputAsHandled();
+		}
 	}
 }
