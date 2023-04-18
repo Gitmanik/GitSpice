@@ -5,7 +5,7 @@ using System.Linq;
 
 public partial class Element : Control
 {
-	private List<ElementPort> Ports;
+	public List<ElementPort> Ports;
 
 	bool moving = false;
 
@@ -28,8 +28,7 @@ public partial class Element : Control
 	{
 		if (moving && @event is InputEventMouseMotion mouseMove)
 		{
-			Position = mouseMove.Position;
-			GetViewport().SetInputAsHandled();
+			UserInputController.Instance.MoveElement(this, mouseMove);
 		}
 	}
 }

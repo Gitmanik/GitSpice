@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 
 public partial class UserInputController : Control
 {
@@ -8,6 +9,14 @@ public partial class UserInputController : Control
 	private ElementPort CurrentWiring;
 
 	private Line2D CurrentWire;
+
+	record conninfo
+	{
+		public Line2D conn;
+		public ElementPort port1, port2;
+	}
+
+	private List<conninfo> conns = new List<conninfo>();
 
 	private PackedScene ElementScene;
 	private Node RootGUINode;
@@ -35,6 +44,8 @@ public partial class UserInputController : Control
 		{
 			CurrentWire.Points = new Vector2[] { CurrentWiring.OffsetPosition, port.OffsetPosition};
 
+			conns.Add(new conninfo{port1 = CurrentWiring, port2 = port, conn = CurrentWire});
+
 			CurrentWiring = null;
 			CurrentWire = null;
 		}
@@ -57,5 +68,19 @@ public partial class UserInputController : Control
 			newElement.Position = e.Position;
 			RootGUINode.AddChild(newElement);
 		}
+    }
+
+    public void MoveElement(Element element, InputEventMouseMotion e)
+    {
+		element.Position = e.Position;
+
+		List<conninfo> connss = conns.FindAll(x => element.Ports.Contains(x.port1) || element.Ports.Contains(x.port2));
+		foreach (conninfo conn in connss)
+		{
+			// GD.Print(conn);
+			conn.conn.Points = new Vector2 []{conn.port1.OffsetPosition, conn.port2.OffsetPosition};
+		}
+
+		GetViewport().SetInputAsHandled();
     }
 }
