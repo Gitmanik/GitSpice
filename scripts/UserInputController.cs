@@ -1,4 +1,5 @@
 using Godot;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
@@ -40,6 +41,8 @@ public partial class UserInputController : Control
 
 	public void ConnectClicked(ElementPort port)
 	{	
+		GD.Print(JsonConvert.SerializeObject(port));
+
 		if (CurrentWiring != null)
 		{
 			CurrentWire.Points = new Vector2[] { CurrentWiring.OffsetPosition, port.OffsetPosition};
@@ -72,6 +75,7 @@ public partial class UserInputController : Control
 
     public void MoveElement(Element element, InputEventMouseMotion e)
     {
+		GD.Print(JsonConvert.SerializeObject(element));
 		element.Position = e.Position;
 
 		List<conninfo> connss = conns.FindAll(x => element.Ports.Contains(x.port1) || element.Ports.Contains(x.port2));

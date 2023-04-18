@@ -1,17 +1,28 @@
 using Godot;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
+[JsonObject(MemberSerialization.OptIn)]
 public partial class Element : Control
 {
+	[JsonProperty]
 	public List<ElementPort> Ports;
+
+	[JsonProperty]
+    public string Guid;
 
 	bool moving = false;
 
-	public override void _Ready()
+    public override void _Ready()
 	{
 		Ports = GetNode("Ports").GetChildren().ToList().Cast<ElementPort>().ToList();
+	}
+
+	public void LoadData()
+	{
+		
 	}
 
     public void _TextureRectGuiInput(InputEvent @event)
