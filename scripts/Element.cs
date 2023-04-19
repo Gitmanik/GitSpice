@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-[JsonObject(MemberSerialization.OptIn)]
 public partial class Element : Control
 {
 	public ElementData Data;
@@ -15,11 +14,18 @@ public partial class Element : Control
     public override void _Ready()
 	{
 		Ports = GetNode("Ports").GetChildren().ToList().Cast<ElementPort>().ToList();
-		foreach (PortData portdata in Data.Ports)
+		GD.Print(JsonConvert.SerializeObject(Data));		
+
+		if (Data == null)
+			throw new ArgumentException("Data is null");
+
+		if (Data.Ports == null)
+			throw new ArgumentException("Data.Ports is null");
+		for (int idx = 0; idx < Data.Ports.Count; idx++)
 		{
-			Ports
+			Ports[idx].Data = Data.Ports[idx];
 		}
-		
+
 	}
 
     public void _TextureRectGuiInput(InputEvent @event)

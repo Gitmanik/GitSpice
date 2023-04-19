@@ -27,6 +27,7 @@ public class CircuitManager
     private List<BoundElement> BoundElements = new List<BoundElement>();
     private List<BoundConnection> BoundConnections = new List<BoundConnection>();
 
+    // TODO: Move to CircuitData class
     /// <summary>
     /// Makes a connection. Throws ArgumentException when connection already exists.
     /// </summary>
@@ -61,18 +62,16 @@ public class CircuitManager
         Circuit.Elements.Add(data);
     }
 
-    public void SaveToFile()
-    {
-        Console.WriteLine(JsonConvert.SerializeObject(Circuit));
-    }
+    public string SerializeCircuitToJson() => JsonConvert.SerializeObject(Circuit);
 
     public void BindConnection(ConnectionData conn, ElementPort Port1, ElementPort Port2, Line2D line)
     {
         BoundConnections.Add(new BoundConnection{Data = conn, Port1 = Port1, Port2 = Port2, Line = line});
     }
 
-    internal void BindElement(ElementData eldata, Element element)
+    public void BindElement(ElementData eldata, Element element)
     {
         BoundElements.Add(new BoundElement{Data = eldata, Element = element});
+        element.Data = eldata;
     }
 }

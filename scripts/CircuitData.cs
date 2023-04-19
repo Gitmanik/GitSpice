@@ -10,8 +10,9 @@ public class CircuitData
 
 public class ConnectionData
 {
-    private ConnectionData() {}
-    public ConnectionData(string Port1, string Port2) {
+    private ConnectionData() { }
+    public ConnectionData(string Port1, string Port2)
+    {
         this.Port1 = Port1;
         this.Port2 = Port2;
         Id = System.Guid.NewGuid().ToString();
@@ -25,27 +26,25 @@ public class ConnectionData
 
 public class ElementData
 {
-    private ElementData() {}
-    public ElementData(string Type) {
+    private ElementData() { }
+    public ElementData(string Type)
+    {
         this.Type = Type;
         Id = System.Guid.NewGuid().ToString();
     }
     public readonly string Id;
     public readonly string Type;
-    public Dictionary<string,string> Data = new Dictionary<string, string>();
-    
-    public Dictionary<string, PortData> Ports = new Dictionary<string, PortData>();
+    public Dictionary<string, string> Data;
+
+    public List<PortData> Ports;
 }
 
 public class PortData
 {
-    public string Id;
-    public List<PortConnection> Connections = new List<PortConnection>();
-}
+    public PortData()
+    {
+        Id = System.Guid.NewGuid().ToString();
+    }
 
-public record PortConnection
-{
     public string Id;
-    public string Port1_Id;
-    public string Port2_Id;
 }
