@@ -7,21 +7,18 @@ using System.Linq;
 [JsonObject(MemberSerialization.OptIn)]
 public partial class Element : Control
 {
-	[JsonProperty]
+	public ElementData Data;
 	public List<ElementPort> Ports;
-
-	[JsonProperty]
-    public string Guid;
 
 	bool moving = false;
 
     public override void _Ready()
 	{
 		Ports = GetNode("Ports").GetChildren().ToList().Cast<ElementPort>().ToList();
-	}
-
-	public void LoadData()
-	{
+		foreach (PortData portdata in Data.Ports)
+		{
+			Ports
+		}
 		
 	}
 
