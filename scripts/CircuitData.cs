@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 
 public class CircuitData
 {
@@ -40,7 +41,7 @@ public class CircuitData
     /// <param name="Port1">Port</param>
     /// <param name="Port2">Port</param>
     /// <returns>True if connection exists, otherwise false</returns>
-    public bool ConnectionExists(string Port1, string Port2) => FindConnection(Port1,Port2) != null;
+    public bool ConnectionExists(string Port1, string Port2) => FindConnection(Port1, Port2) != null;
 
 
 }
@@ -72,6 +73,8 @@ public class ElementData
     public readonly string Id;
     public readonly string Type;
     public Dictionary<string, string> Data;
+
+    public Vector2 Position;
 
     public List<PortData> Ports;
 }

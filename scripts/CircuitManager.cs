@@ -1,5 +1,3 @@
-
-
 using System;
 using System.Collections.Generic;
 using Godot;
@@ -29,6 +27,17 @@ public class CircuitManager
 
     public List<BoundConnection> FindBoundConnections(string Port) => BoundConnections.FindAll(x => x.Data.IsConnected(Port));
 
+    public ElementPort FindElementPort(string Port)
+    {
+        foreach (var element in BoundElements)
+        {
+            var port = element.Element.Ports.Find(x => x.Data.Id == Port);
+            if (port != null)
+                return port;
+        }
+        return null;
+    }
+
     public void CreateElement(ElementData data)
     {
         if (Circuit.Elements.Contains(data))
@@ -42,12 +51,21 @@ public class CircuitManager
 
     public void BindConnection(ConnectionData conn, ElementPort Port1, ElementPort Port2, Line2D line)
     {
-        BoundConnections.Add(new BoundConnection{Data = conn, Port1 = Port1, Port2 = Port2, Line = line});
+        BoundConnections.Add(new BoundConnection { Data = conn, Port1 = Port1, Port2 = Port2, Line = line });
     }
 
     public void BindElement(ElementData eldata, Element element)
     {
-        BoundElements.Add(new BoundElement{Data = eldata, Element = element});
+        BoundElements.Add(new BoundElement { Data = eldata, Element = element });
         element.Data = eldata;
+    }
+
+    internal void LoadCircuit(CircuitData circuit)
+    {
+        Logger.Debug("Loading Circuit");
+        // TODO: Instantiate elements and connections here.
+        Circuit = circuit;
+        BoundConnections.Clear();
+        BoundElements.Clear();
     }
 }

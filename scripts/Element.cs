@@ -1,5 +1,4 @@
 using Godot;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +23,7 @@ public partial class Element : Control
 		for (int idx = 0; idx < Data.Ports.Count; idx++)
 		{
 			Ports[idx].Data = Data.Ports[idx];
+			Ports[idx].ParentElement = this;
 		}
 
 	}
