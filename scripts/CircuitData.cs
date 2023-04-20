@@ -42,8 +42,6 @@ public class CircuitData
     /// <param name="Port2">Port</param>
     /// <returns>True if connection exists, otherwise false</returns>
     public bool ConnectionExists(string Port1, string Port2) => FindConnection(Port1, Port2) != null;
-
-
 }
 
 public class ConnectionData

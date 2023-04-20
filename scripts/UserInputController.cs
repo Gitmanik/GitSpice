@@ -170,7 +170,6 @@ public partial class UserInputController : Control
             RootGUINode.AddChild(newElement);
         }
 
-
         foreach (var conn in CircuitManager.Circuit.Connections)
         {
             var port1 = CircuitManager.FindElementPort(conn.Port1);
