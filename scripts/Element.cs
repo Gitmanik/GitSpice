@@ -6,15 +6,15 @@ using System.Linq;
 
 public partial class Element : Control
 {
+	private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 	public ElementData Data;
 	public List<ElementPort> Ports;
 
-	bool moving = false;
+	bool Moving = false;
 
     public override void _Ready()
 	{
 		Ports = GetNode("Ports").GetChildren().ToList().Cast<ElementPort>().ToList();
-		GD.Print(JsonConvert.SerializeObject(Data));		
 
 		if (Data == null)
 			throw new ArgumentException("Data is null");
@@ -32,15 +32,15 @@ public partial class Element : Control
     {
         if (@event is InputEventMouseButton mouseClick && mouseClick.ButtonIndex == MouseButton.Left && mouseClick.Pressed)
 		{
-			moving = !moving;
-			GD.Print($"{Name} {moving}");
+			Moving = !Moving;
+			Logger.Debug($"Moving: {Name} {Moving}");
 			GetViewport().SetInputAsHandled();
 		}
     }
 
 	public override void _Input(InputEvent @event)
 	{
-		if (moving && @event is InputEventMouseMotion mouseMove)
+		if (Moving && @event is InputEventMouseMotion mouseMove)
 		{
 			UserInputController.Instance.MoveElement(this, mouseMove);
 		}
