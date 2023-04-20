@@ -21,6 +21,7 @@ config/icon="res://icon.svg"
 
 LogManager="*res://scripts/Logging/LogManager.cs"
 ElementProvider="*res://scripts/ElementProvider.cs"
+CircuitManager="*res://scripts/CircuitManager.cs"
 
 [dotnet]
 

@@ -1,6 +1,5 @@
 using Godot;
 using Newtonsoft.Json;
-using System.Collections.Generic;
 
 public partial class UserInputController : Control
 {
@@ -8,52 +7,52 @@ public partial class UserInputController : Control
     private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     public static UserInputController Instance;
 
-    public CircuitManager CircuitManager = new CircuitManager();
+    private ElementPort CurrentlyConnecting;
+    private Line2D ConnectingWire;
 
-    private ElementPort CurrentConnecting;
-    private Line2D CurrentWire;
-
-    private Node RootGUINode;
+    private Node ElementContainerScene;
 
     public override void _Ready()
     {
-        RootGUINode = GetNode("/root/main/ElementContainer");
+        ElementContainerScene = GetNode(CircuitManager.ElementContainerPath);
 
         Instance = this;
     }
 
+
     public override void _Input(InputEvent @event)
     {
-        if (@event is InputEventKey key)
+        if (@event is InputEventKey key && key.Echo == false && key.Pressed == true)
         {
             if (key.Keycode == Key.Backspace)
             {
-                Logger.Warn(CircuitManager.SerializeCircuitToJson());
+                Logger.Warn(JsonConvert.SerializeObject(CircuitManager.Instance.Circuit));
                 GetViewport().SetInputAsHandled();
                 return;
             }
             if (key.Keycode == Key.S)
             {
                 SaveCircuit();
+                GetViewport().SetInputAsHandled();
                 return;
             }
             if (key.Keycode == Key.L)
             {
                 LoadCircuit();
+                GetViewport().SetInputAsHandled();
                 return;
             }
         }
 
-        if (CurrentWire != null && @event is InputEventMouseButton mouseClicked && mouseClicked.ButtonIndex == MouseButton.Right)
+        if (ConnectingWire != null && @event is InputEventMouseButton mouseClicked && mouseClicked.ButtonIndex == MouseButton.Right)
         {
-            NLog.LogManager.GetCurrentClassLogger().Info("test");
             ResetConnecting();
             GetViewport().SetInputAsHandled();
             return;
         }
-        if (CurrentWire != null && @event is InputEventMouseMotion mouseMoved)
+        if (ConnectingWire != null && @event is InputEventMouseMotion mouseMoved)
         {
-            CurrentWire.Points = new Vector2[] { CurrentConnecting.OffsetPosition, mouseMoved.GlobalPosition };
+            ConnectingWire.Points = new Vector2[] { CurrentlyConnecting.OffsetPosition, mouseMoved.GlobalPosition };
         }
     }
 
@@ -66,120 +65,74 @@ public partial class UserInputController : Control
             //TODO: Make it selectable from bar
             string type = "Resistor";
 
-            var elementDef = ElementProvider.Instance.GetElement(type);
             var elementData = ElementProvider.Instance.NewElementData(type);
-
-            var newElement = elementDef.Scene.Instantiate<Element>();
-
-            CircuitManager.CreateElement(elementData);
-            CircuitManager.BindElement(elementData, newElement);
-
-            newElement.Position = e.Position;
-            newElement.Data.Position.X = e.Position.X;
-            newElement.Data.Position.Y = e.Position.Y;
-
-            RootGUINode.AddChild(newElement);
+            var elementScene = CircuitManager.Instance.CreateElement(elementData);
+            CircuitManager.Instance.MoveElement(elementScene, e.Position);
         }
     }
 
     private void ResetConnecting()
     {
-        CurrentConnecting = null;
-        CurrentWire = null;
+        if (ConnectingWire != null)
+            ConnectingWire.QueueFree();
+
+        ConnectingWire = null;
+        CurrentlyConnecting = null;
     }
 
     public void ConnectClicked(ElementPort clickedPort)
     {
-        if (CurrentConnecting != null)
+        if (CurrentlyConnecting != null)
         {
-            if (CircuitManager.Circuit.ConnectionExists(CurrentConnecting.Data.Id, clickedPort.Data.Id))
+            if (!CircuitManager.Instance.ConnectionExists(CurrentlyConnecting.Data.Id, clickedPort.Data.Id))
             {
-                CurrentWire.QueueFree();
-                ResetConnecting();
-                return;
+                CircuitManager.Instance.ConnectPorts(CurrentlyConnecting, clickedPort);
             }
-            var conn = CircuitManager.Circuit.ConnectPorts(CurrentConnecting.Data.Id, clickedPort.Data.Id);
-            CurrentWire.Points = new Vector2[] { CurrentConnecting.OffsetPosition, clickedPort.OffsetPosition };
+            else
+                Logger.Warn($"Tried to create already existing connection! (Port1: {CurrentlyConnecting.Data.Id}, Port2: {clickedPort.Data.Id})");
 
-            CircuitManager.BindConnection(conn, CurrentConnecting, clickedPort, CurrentWire);
             ResetConnecting();
         }
         else
         {
-            CurrentConnecting = clickedPort;
-            CurrentWire = new Line2D();
-            CurrentWire.Points = new Vector2[] { CurrentConnecting.OffsetPosition };
-            RootGUINode.AddChild(CurrentWire);
+            CurrentlyConnecting = clickedPort;
+
+            ConnectingWire = new Line2D();
+            ConnectingWire.Points = new Vector2[] { CurrentlyConnecting.OffsetPosition };
+            ConnectingWire.DefaultColor = Color.Color8(255, 0, 0);
+            ElementContainerScene.AddChild(ConnectingWire);
         }
     }
-
 
     public void MoveElement(Element element, InputEventMouseMotion e)
     {
-        element.Position = e.Position;
-        element.Data.Position.X = e.Position.X;
-        element.Data.Position.Y = e.Position.Y;
-
-        foreach (ElementPort port in element.Ports)
-        {
-            List<CircuitManager.BoundConnection> connections = CircuitManager.FindBoundConnections(port.Data.Id);
-            foreach (var connection in connections)
-            {
-                connection.Line.Points = new Vector2[] { connection.Port1.OffsetPosition, connection.Port2.OffsetPosition };
-            }
-        }
-
+        CircuitManager.Instance.MoveElement(element, e.Position);
         GetViewport().SetInputAsHandled();
     }
 
-    // TODO: Move to other Manager
     public void LoadCircuit()
     {
-        foreach (Node n in RootGUINode.GetChildren())
-        {
-            n.QueueFree();
-        }
+        var circuitFile = FileAccess.Open(CircuitSavePath, FileAccess.ModeFlags.Read);
+        var circuitJsonText = circuitFile.GetAsText();
+        circuitFile.Close();
 
-        var file = FileAccess.Open(CircuitSavePath, FileAccess.ModeFlags.Read);
-        var data = file.GetAsText();
-        file.Close();
-        Logger.Info(data);
-        var circuit = JsonConvert.DeserializeObject<CircuitData>(data);
+        Logger.Debug($"Loading CircuitData:\n{circuitJsonText}");
 
-        CircuitManager.LoadCircuit(circuit);
+        var circuit = JsonConvert.DeserializeObject<CircuitData>(circuitJsonText);
 
-        //TODO: Move logic to CircuitManager.LoadCircuit
-        foreach (var eldata in CircuitManager.Circuit.Elements)
-        {
-            var elementDef = ElementProvider.Instance.GetElement(eldata.Type);
-            var newElement = elementDef.Scene.Instantiate<Control>() as Element;
-            newElement.Data = eldata;
-            CircuitManager.BindElement(eldata, newElement);
-
-            newElement.Position = new Vector2(eldata.Position.X, eldata.Position.Y);
-
-            RootGUINode.AddChild(newElement);
-        }
-
-        foreach (var conn in CircuitManager.Circuit.Connections)
-        {
-            var port1 = CircuitManager.FindElementPort(conn.Port1);
-            var port2 = CircuitManager.FindElementPort(conn.Port2);
-
-            var line = new Line2D();
-            line.Points = new Vector2[] { port1.OffsetPosition, port2.OffsetPosition };
-            RootGUINode.AddChild(line);
-            CircuitManager.BindConnection(conn, port1, port2, line);
-        }
+        CircuitManager.Instance.LoadCircuit(circuit);
     }
 
     public void SaveCircuit()
     {
         Logger.Info("Saving current Circuit state");
-        var file = FileAccess.Open(CircuitSavePath, FileAccess.ModeFlags.Write);
-        var data = CircuitManager.SerializeCircuitToJson();
-        Logger.Info(data);
-        file.StoreString(data);
-        file.Close();
+
+        var circuitFile = FileAccess.Open(CircuitSavePath, FileAccess.ModeFlags.Write);
+        var circuitJsonText = JsonConvert.SerializeObject(CircuitManager.Instance.Circuit);
+
+        circuitFile.StoreString(circuitJsonText);
+        circuitFile.Close();
+
+        Logger.Debug($"Saved CircuitData to file {CircuitSavePath}:\n{circuitJsonText}");
     }
 }
