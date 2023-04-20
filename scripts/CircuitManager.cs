@@ -9,7 +9,7 @@ public class CircuitManager
 {
     private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-    private CircuitData Circuit = new CircuitData();
+    public CircuitData Circuit = new CircuitData();
 
     public record BoundConnection
     {
@@ -27,31 +27,7 @@ public class CircuitManager
     private List<BoundElement> BoundElements = new List<BoundElement>();
     private List<BoundConnection> BoundConnections = new List<BoundConnection>();
 
-    // TODO: Move to CircuitData class
-    /// <summary>
-    /// Makes a connection. Throws ArgumentException when connection already exists.
-    /// </summary>
-    /// <param name="Port1">Port</param>
-    /// <param name="Port2">Port</param>
-    /// <returns>Connection object</returns>
-    public ConnectionData ConnectPorts(string Port1, string Port2)
-    {
-        ConnectionData existingConnection = FindConnection(Port1, Port2);
-        if (existingConnection != null)
-        {
-            throw new ArgumentException($"Tried to create already existing connection! (Port1: {Port1}, Port2: {Port2})");
-        }
-
-        ConnectionData conn = new ConnectionData(Port1, Port2);
-        Circuit.Connections.Add(conn);
-        return conn;
-    }
-
-    public ConnectionData FindConnection(string Port1, string Port2) => Circuit.Connections.Find(x => x.IsConnected(Port1) && x.IsConnected(Port2));
-
     public List<BoundConnection> FindBoundConnections(string Port) => BoundConnections.FindAll(x => x.Data.IsConnected(Port));
-
-    public bool ConnectionExists(string Port1, string Port2) => FindConnection(Port1,Port2) != null;
 
     public void CreateElement(ElementData data)
     {

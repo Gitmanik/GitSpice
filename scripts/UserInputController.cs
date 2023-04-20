@@ -1,13 +1,13 @@
 using Godot;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
 public partial class UserInputController : Control
 {
+	private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 	public static UserInputController Instance;
 
-	public CircuitManager Circuit = new CircuitManager();
+	public CircuitManager CircuitManager = new CircuitManager();
 
 	private ElementPort CurrentConnecting;
 	private Line2D CurrentWire;
@@ -27,7 +27,7 @@ public partial class UserInputController : Control
     {
 		if (@event is InputEventKey key && key.Keycode == Key.Backspace)
 		{
-			GD.Print(Circuit.SerializeCircuitToJson());
+			Logger.Warn(CircuitManager.SerializeCircuitToJson());
 			GetViewport().SetInputAsHandled();
 			return;
 		}
@@ -55,16 +55,16 @@ public partial class UserInputController : Control
 	{	
 		if (CurrentConnecting != null)
 		{
-			if (Circuit.ConnectionExists(CurrentConnecting.Data.Id, clickedPort.Data.Id))
+			if (CircuitManager.Circuit.ConnectionExists(CurrentConnecting.Data.Id, clickedPort.Data.Id))
 			{
 				CurrentWire.QueueFree();
 				ResetConnecting();
 				return;
 			}
-			var conn = Circuit.ConnectPorts(CurrentConnecting.Data.Id, clickedPort.Data.Id);
+			var conn = CircuitManager.Circuit.ConnectPorts(CurrentConnecting.Data.Id, clickedPort.Data.Id);
 			CurrentWire.Points = new Vector2[] { CurrentConnecting.OffsetPosition, clickedPort.OffsetPosition};
 
-			Circuit.BindConnection(conn, CurrentConnecting, clickedPort, CurrentWire);
+			CircuitManager.BindConnection(conn, CurrentConnecting, clickedPort, CurrentWire);
 			ResetConnecting();
 		}
 		else
@@ -95,8 +95,8 @@ public partial class UserInputController : Control
 			//
 
 			var newElement = ElementScene.Instantiate<Control>();
-			Circuit.CreateElement(eldata);
-			Circuit.BindElement(eldata, newElement as Element);
+			CircuitManager.CreateElement(eldata);
+			CircuitManager.BindElement(eldata, newElement as Element);
 
 			newElement.Position = e.Position;
 			RootGUINode.AddChild(newElement);
@@ -109,7 +109,7 @@ public partial class UserInputController : Control
 
 		foreach (ElementPort port in element.Ports)
 		{
-			List<CircuitManager.BoundConnection> connections = Circuit.FindBoundConnections(port.Data.Id);
+			List<CircuitManager.BoundConnection> connections = CircuitManager.FindBoundConnections(port.Data.Id);
 			foreach (var connection in connections)
 			{
 				connection.Line.Points = new Vector2 []{connection.Port1.OffsetPosition, connection.Port2.OffsetPosition};
