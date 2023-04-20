@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 
 public partial class ElementProvider : Node
@@ -24,12 +25,17 @@ public partial class ElementProvider : Node
     }
 
     public ElementDefinition GetElement(string Type) => Elements[Type];
+    public List<ElementDefinition> GetElements() => Elements.Values.ToList();
 
     public ElementData NewElementData(string Type)
     {
         var elementDef = GetElement(Type);
+        return NewElementData(elementDef);
+    }
 
-        ElementData elementData = new ElementData(Type);
+    public ElementData NewElementData(ElementDefinition elementDef)
+    {
+        ElementData elementData = new ElementData(elementDef.Type);
 
         elementData.Ports = new List<PortData>();
         elementData.Data = new Dictionary<string, string>();
