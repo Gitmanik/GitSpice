@@ -2,18 +2,21 @@ using Godot;
 using NLog;
 using NLog.Targets;
 
-[Target("Godot")]
-public sealed class NLogGodotTarget : TargetWithLayout
+namespace Gitmanik.Logging.Godot
 {
-    public static NLogGodotTarget GenerateTarget()
+    [Target("Godot")]
+    public sealed class NLogGodotTarget : TargetWithLayout
     {
-        return new NLogGodotTarget()
+        public static NLogGodotTarget GenerateTarget()
         {
-            Layout = @"[i]${callsite}:${callsite-linenumber}[/i] ${level}: ${message} ${exception}"
-        };
-    }
-    protected override void Write(LogEventInfo logEvent)
-    {
-        GD.PrintRich(Layout.Render(logEvent));
+            return new NLogGodotTarget()
+            {
+                Layout = @"[i]${callsite}:${callsite-linenumber}[/i] ${level}: ${message} ${exception}"
+            };
+        }
+        protected override void Write(LogEventInfo logEvent)
+        {
+            GD.PrintRich(Layout.Render(logEvent));
+        }
     }
 }
