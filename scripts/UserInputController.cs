@@ -16,11 +16,6 @@ public partial class UserInputController : Control
     private PackedScene ElementScene;
     private Node RootGUINode;
 
-    public override void _EnterTree()
-    {
-        LogManager.ConfigNLog();
-    }
-
     public override void _Ready()
     {
         ElementScene = GD.Load<PackedScene>("scenes/resistor.tscn");

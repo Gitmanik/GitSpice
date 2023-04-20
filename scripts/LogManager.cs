@@ -1,8 +1,15 @@
+using Godot;
 using NLog;
 
-public static class LogManager
+public partial class LogManager : Node
 {
-    public static void ConfigNLog()
+    public override void _EnterTree()
+    {
+        GD.Print("Configuring NLog");
+        ConfigNLog();
+    }
+
+    private void ConfigNLog()
     {
         NLog.Config.LoggingConfiguration nlog_config = new NLog.Config.LoggingConfiguration();
         NLog.Targets.FileTarget nlog_logfile = new NLog.Targets.FileTarget("logfile")
