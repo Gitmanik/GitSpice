@@ -19,7 +19,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-LogManager="*res://scripts/LogManager.cs"
+LogManager="*res://scripts/Logging/LogManager.cs"
 ElementProvider="*res://scripts/ElementProvider.cs"
 
 [dotnet]
