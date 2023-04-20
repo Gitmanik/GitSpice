@@ -62,10 +62,13 @@ public partial class UserInputController : Control
         {
             Logger.Debug("Creating new Element");
 
-            //TODO: Make it selectable from bar
-            string type = "Resistor";
+            if (Toolbar.Instance.SelectedElement == null)
+            {
+                Logger.Debug("SelectedElement in Toolbar is null, returning");
+                return;
+            }
 
-            var elementData = ElementProvider.Instance.NewElementData(type);
+            var elementData = ElementProvider.Instance.NewElementData(Toolbar.Instance.SelectedElement);
             var elementScene = CircuitManager.Instance.CreateElement(elementData);
             CircuitManager.Instance.MoveElement(elementScene, e.Position);
         }
