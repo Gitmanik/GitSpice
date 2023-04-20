@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dhb0nxxut4rlw"
-path="res://.godot/imported/resistor.png-84aaca782e1cbd2109c7e0330cf96bf2.ctex"
+uid="uid://dymukkuutqbs3"
+path="res://.godot/imported/voltmeter.png-2d16d874cc3884f811ed707713fdb212.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://elements/symbols/resistor.png"
-dest_files=["res://.godot/imported/resistor.png-84aaca782e1cbd2109c7e0330cf96bf2.ctex"]
+source_file="res://elements/symbols/voltmeter.png"
+dest_files=["res://.godot/imported/voltmeter.png-2d16d874cc3884f811ed707713fdb212.ctex"]
 
 [params]
 
