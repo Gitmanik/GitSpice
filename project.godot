@@ -20,6 +20,8 @@ config/icon="res://icon.svg"
 [autoload]
 
 LogManager="*res://scripts/LogManager.cs"
+ElementProvider="*res://scripts/ElementProvider.cs"
+
 [dotnet]
 
 project/assembly_name="GitSpice"

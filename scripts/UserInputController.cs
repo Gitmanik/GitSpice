@@ -13,12 +13,10 @@ public partial class UserInputController : Control
     private ElementPort CurrentConnecting;
     private Line2D CurrentWire;
 
-    private PackedScene ElementScene;
     private Node RootGUINode;
 
     public override void _Ready()
     {
-        ElementScene = GD.Load<PackedScene>("scenes/resistor.tscn");
         RootGUINode = GetNode("/root/main/ElementContainer");
 
         Instance = this;
@@ -65,19 +63,16 @@ public partial class UserInputController : Control
         {
             Logger.Debug("Creating new Element");
 
-            //TODO: Move to Element
-            var eldata = new ElementData("Resistor");
-            eldata.Data = new Dictionary<string, string>();
-            eldata.Data.Add("testkey", "testval");
+            //TODO: Make it selectable from bar
+            string type = "Resistor";
 
-            eldata.Ports = new List<PortData>();
-            eldata.Ports.Add(new PortData());
-            eldata.Ports.Add(new PortData());
-            //
+            var elementDef = ElementProvider.Instance.GetElement(type);
+            var elementData = ElementProvider.Instance.NewElementData(type);
 
-            var newElement = ElementScene.Instantiate<Control>() as Element;
-            CircuitManager.CreateElement(eldata);
-            CircuitManager.BindElement(eldata, newElement);
+            var newElement = elementDef.Scene.Instantiate<Element>();
+
+            CircuitManager.CreateElement(elementData);
+            CircuitManager.BindElement(elementData, newElement);
 
             newElement.Position = e.Position;
             newElement.Data.Position.X = e.Position.X;
@@ -156,7 +151,8 @@ public partial class UserInputController : Control
         //TODO: Move logic to CircuitManager.LoadCircuit
         foreach (var eldata in CircuitManager.Circuit.Elements)
         {
-            var newElement = ElementScene.Instantiate<Control>() as Element;
+            var elementDef = ElementProvider.Instance.GetElement(eldata.Type);
+            var newElement = elementDef.Scene.Instantiate<Control>() as Element;
             newElement.Data = eldata;
             CircuitManager.BindElement(eldata, newElement);
 

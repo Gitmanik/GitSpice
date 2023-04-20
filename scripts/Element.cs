@@ -2,13 +2,11 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
 public partial class Element : Control
 {
     private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     public ElementData Data;
     public List<ElementPort> Ports;
-
     bool Moving = false;
 
     public override void _Ready()

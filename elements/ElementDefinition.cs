@@ -1,0 +1,17 @@
+using Godot;
+using Godot.Collections;
+
+public partial class ElementDefinition : Resource
+{
+    [Export]
+    public string Type;
+
+    [Export]
+    public PackedScene Scene;
+
+    [Export]
+    public Dictionary<string, string> Data;
+
+    [Export]
+    public int PortCount;
+}

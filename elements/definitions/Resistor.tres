@@ -1,0 +1,13 @@
+[gd_resource type="Resource" load_steps=3 format=3 uid="uid://bdlhvfvb35ana"]
+
+[ext_resource type="PackedScene" uid="uid://dc8sd7nkhibft" path="res://elements/scenes/resistor.tscn" id="1_xswss"]
+[ext_resource type="Script" path="res://elements/ElementDefinition.cs" id="2_p2br0"]
+
+[resource]
+script = ExtResource("2_p2br0")
+Type = "Resistor"
+Scene = ExtResource("1_xswss")
+Data = {
+"Resistance": "10"
+}
+PortCount = 2
