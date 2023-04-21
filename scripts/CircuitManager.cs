@@ -191,6 +191,7 @@ public partial class CircuitManager : Node
 
             newElement.Data = eldata;
             newElement.Position = new Vector2(eldata.Position.X, eldata.Position.Y);
+            newElement.Rotation = eldata.Rotation;
 
             BindElement(eldata, newElement);
 
