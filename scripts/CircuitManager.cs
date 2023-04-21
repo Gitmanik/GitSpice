@@ -112,12 +112,9 @@ public partial class CircuitManager : Node
         ConnectionData conn = new ConnectionData(Port1.Data.Id, Port2.Data.Id);
         Circuit.Connections.Add(conn);
 
-        var line = new Line2D();
-        line.Points = new Vector2[] { Port1.OffsetPosition, Port2.OffsetPosition };
+        var line = CreateLine2D(new Vector2[] { Port1.Centroid, Port2.Centroid });
 
         BindConnection(conn, Port1, Port2, line);
-
-        ElementContainerScene.AddChild(line);
 
         return conn;
     }
@@ -205,12 +202,27 @@ public partial class CircuitManager : Node
             var port1 = FindElementPort(conn.Port1);
             var port2 = FindElementPort(conn.Port2);
 
-            var line = new Line2D();
-            line.Points = new Vector2[] { port1.OffsetPosition, port2.OffsetPosition };
+            var line = CreateLine2D(new Vector2[] { port1.Centroid, port2.Centroid });
 
             BindConnection(conn, port1, port2, line);
 
-            ElementContainerScene.AddChild(line);
         }
+    }
+
+    /// <summary>
+    /// Creates Line2D and adds it to ElementContainer
+    /// </summary>
+    /// <param name="points">Line points</param>
+    /// <returns>Line2D object</returns>
+    public Line2D CreateLine2D(Vector2[] points)
+    {
+        var line = new Line2D();
+
+        line.Points = points;
+        line.Width = 3f;
+
+        ElementContainerScene.AddChild(line);
+
+        return line;
     }
 }

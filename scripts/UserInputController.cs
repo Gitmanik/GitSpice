@@ -100,10 +100,8 @@ public partial class UserInputController : Control
         {
             CurrentlyConnecting = clickedPort;
 
-            ConnectingWire = new Line2D();
-            ConnectingWire.Points = new Vector2[] { CurrentlyConnecting.OffsetPosition };
-            ConnectingWire.DefaultColor = Color.Color8(255, 0, 0);
-            ElementContainerScene.AddChild(ConnectingWire);
+            ConnectingWire = CircuitManager.Instance.CreateLine2D(new Vector2[] { CurrentlyConnecting.Centroid });
+            ConnectingWire.DefaultColor = Colors.LawnGreen;
         }
     }
 

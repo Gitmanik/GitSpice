@@ -26,6 +26,7 @@ public partial class Element : Control
             Ports[idx].ParentElement = this;
         }
 
+        Name = Data.Id;
     }
 
     public void _TextureRectGuiInput(InputEvent @event)
