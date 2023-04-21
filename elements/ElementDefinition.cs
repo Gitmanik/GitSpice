@@ -14,6 +14,7 @@ public partial class ElementDefinition : Resource
 
     [Export]
     public int PortCount;
+
     [Export]
     public Texture2D ToolbarTexture;
 }

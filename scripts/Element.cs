@@ -9,6 +9,8 @@ public partial class Element : Control
     public List<ElementPort> Ports;
     bool Moving = false;
 
+    private const float RotationAmount = 0.33f;
+
     public override void _Ready()
     {
         Ports = GetNode("Ports").GetChildren().ToList().Cast<ElementPort>().ToList();
@@ -42,5 +44,18 @@ public partial class Element : Control
         {
             UserInputController.Instance.MoveElement(this, mouseMove);
         }
+
+        if (Moving && @event is InputEventMouseButton mouseButton && mouseButton.IsPressed())
+        {
+            if (mouseButton.ButtonIndex == MouseButton.WheelUp)
+            {
+                CircuitManager.Instance.RotateElement(this, Rotation + RotationAmount);
+            }
+            if (mouseButton.ButtonIndex == MouseButton.WheelDown)
+            {
+                CircuitManager.Instance.RotateElement(this, Rotation - RotationAmount);
+            }
+        }
+
     }
 }

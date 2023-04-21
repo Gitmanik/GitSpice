@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -18,6 +17,7 @@ public class ConnectionData
         this.Port2 = Port2;
         Id = System.Guid.NewGuid().ToString();
     }
+
     public readonly string Id;
     public readonly string Port1;
     public readonly string Port2;
@@ -33,12 +33,12 @@ public class ElementData
         this.Type = Type;
         Id = System.Guid.NewGuid().ToString();
     }
+
     public readonly string Id;
     public readonly string Type;
     public Dictionary<string, string> Data;
-
     public Vector2 Position;
-
+    public float Rotation;
     public List<PortData> Ports;
 }
 

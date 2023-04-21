@@ -52,7 +52,7 @@ public partial class UserInputController : Control
         }
         if (ConnectingWire != null && @event is InputEventMouseMotion mouseMoved)
         {
-            ConnectingWire.Points = new Vector2[] { CurrentlyConnecting.OffsetPosition, mouseMoved.GlobalPosition };
+            ConnectingWire.Points = new Vector2[] { CurrentlyConnecting.Centroid, mouseMoved.GlobalPosition };
         }
     }
 

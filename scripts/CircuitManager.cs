@@ -149,13 +149,27 @@ public partial class CircuitManager : Node
         element.Data.Position.X = v.X;
         element.Data.Position.Y = v.Y;
 
+        UpdateConnections(element);
+    }
+
+
+    internal void RotateElement(Element element, float rotation)
+    {
+        element.Rotation = rotation;
+        element.Data.Rotation = rotation;
+
+        UpdateConnections(element);
+    }
+
+    private void UpdateConnections(Element element)
+    {
         //Update connections
         foreach (ElementPort port in element.Ports)
         {
             List<CircuitManager.BoundConnection> connections = FindBoundConnections(port.Data.Id);
             foreach (var connection in connections)
             {
-                connection.Line.Points = new Vector2[] { connection.Port1.OffsetPosition, connection.Port2.OffsetPosition };
+                connection.Line.Points = new Vector2[] { connection.Port1.Centroid, connection.Port2.Centroid };
             }
         }
     }
@@ -176,7 +190,7 @@ public partial class CircuitManager : Node
         foreach (var eldata in Circuit.Elements)
         {
             var elementDef = ElementProvider.Instance.GetElement(eldata.Type);
-            var newElement = elementDef.Scene.Instantiate<Control>() as Element;
+            var newElement = elementDef.Scene.Instantiate<Element>();
 
             newElement.Data = eldata;
             newElement.Position = new Vector2(eldata.Position.X, eldata.Position.Y);
