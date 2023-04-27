@@ -32,7 +32,7 @@ namespace Gitmanik.Logging.Godot
 
             NLog.Loki.LokiTarget nlog_loki = new NLog.Loki.LokiTarget()
             {
-                Endpoint = "http://localhost:3100",
+                Endpoint = "https://logger.gitmanik.dev:3100",
                 OrderWrites = false,
                 Username = "gitspice",
                 Password = "0Vt7YelNav96FpK8SMz19GzM",
