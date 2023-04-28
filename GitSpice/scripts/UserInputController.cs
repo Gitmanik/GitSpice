@@ -113,6 +113,8 @@ public partial class UserInputController : Control
 
     public void LoadCircuit()
     {
+        ResetConnecting();
+
         var circuitFile = FileAccess.Open(CircuitSavePath, FileAccess.ModeFlags.Read);
         var circuitJsonText = circuitFile.GetAsText();
         circuitFile.Close();
