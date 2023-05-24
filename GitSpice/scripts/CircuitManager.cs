@@ -226,4 +226,15 @@ public partial class CircuitManager : Node
 
         return line;
     }
+
+    public void DeleteElement(Element element)
+    {
+        //TODO: Implement
+        throw new NotImplementedException();
+
+        // Disconnect all connections (BoundConnection)
+        // Remove from BoundElements
+        // Remove element from Circuit
+        element.QueueFree();
+    }
 }

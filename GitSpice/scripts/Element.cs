@@ -12,7 +12,7 @@ public partial class Element : Control
     public bool Moving = false;
 
     // TODO: Expose as configurable variable
-    private const float RotationAmount = 0.33f;
+    private const float RotationAmount = 2 * Mathf.Pi / 8f;
 
     public override void _Ready()
     {
@@ -49,17 +49,30 @@ public partial class Element : Control
             UserInputController.Instance.MoveElement(this, mouseMove);
         }
 
-        if (Moving && @event is InputEventMouseButton mouseButton && mouseButton.IsPressed() && ElementProvider.Instance.GetElementDefinition(Data.Type).AllowRotation)
+        if (Moving && @event is InputEventMouseButton mouseButton && mouseButton.IsPressed())
         {
-            if (mouseButton.ButtonIndex == MouseButton.WheelUp)
+            if (mouseButton.ButtonIndex == MouseButton.Right)
             {
-                CircuitManager.Instance.RotateElement(this, Rotation + RotationAmount);
+                CircuitManager.Instance.DeleteElement(this);
+                GetViewport().SetInputAsHandled();
+                return;
             }
-            if (mouseButton.ButtonIndex == MouseButton.WheelDown)
+
+            if (ElementProvider.Instance.GetElementDefinition(Data.Type).AllowRotation)
             {
-                CircuitManager.Instance.RotateElement(this, Rotation - RotationAmount);
+                if (mouseButton.ButtonIndex == MouseButton.WheelUp)
+                {
+                    CircuitManager.Instance.RotateElement(this, Rotation + RotationAmount);
+                    GetViewport().SetInputAsHandled();
+                    return;
+                }
+                if (mouseButton.ButtonIndex == MouseButton.WheelDown)
+                {
+                    CircuitManager.Instance.RotateElement(this, Rotation - RotationAmount);
+                    GetViewport().SetInputAsHandled();
+                    return;
+                }
             }
         }
-
     }
 }
