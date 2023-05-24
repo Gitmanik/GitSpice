@@ -1,9 +1,15 @@
 [gd_scene load_steps=3 format=3 uid="uid://doo6foavt6nv7"]
 
 [ext_resource type="Script" path="res://scripts/UserInputController.cs" id="1_g8qvd"]
-[ext_resource type="PackedScene" uid="uid://ekiqts2u4m2u" path="res://scenes/gui.tscn" id="1_jgssj"]
+[ext_resource type="PackedScene" uid="uid://laqgl8yctld3" path="res://scenes/toolbar.tscn" id="2_yctn3"]
 
 [node name="main" type="Node"]
+
+[node name="Toolbar" parent="." instance=ExtResource("2_yctn3")]
+offset_left = 170.0
+offset_top = -55.0
+offset_right = -170.0
+offset_bottom = -5.0
 
 [node name="ElementContainer" type="Control" parent="."]
 layout_mode = 3
@@ -14,7 +20,3 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_g8qvd")
-
-[node name="GUI" parent="." instance=ExtResource("1_jgssj")]
-mouse_filter = 2
-script = null

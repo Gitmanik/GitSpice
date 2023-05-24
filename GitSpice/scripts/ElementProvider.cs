@@ -30,12 +30,12 @@ public partial class ElementProvider : Node
         }
     }
 
-    public ElementDefinition GetElement(string Type) => Elements[Type];
-    public List<ElementDefinition> GetElements() => Elements.Values.ToList();
+    public ElementDefinition GetElementDefinition(string Type) => Elements[Type];
+    public List<ElementDefinition> GetElementDefinitions() => Elements.Values.ToList();
 
     public ElementData NewElementData(string Type)
     {
-        var elementDef = GetElement(Type);
+        var elementDef = GetElementDefinition(Type);
         return NewElementData(elementDef);
     }
 

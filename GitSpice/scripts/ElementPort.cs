@@ -21,6 +21,14 @@ public partial class ElementPort : Button
 
     public override void _Pressed()
     {
-        UserInputController.Instance.ConnectClicked(this);
+        // Stop moving when Port is clicked (Pole having port in the middle fix)
+        if (ParentElement.Moving)
+        {
+            ParentElement.Moving = false;
+            this.ButtonPressed = false;
+            return;
+        }
+
+        UserInputController.Instance.ElementPortClicked(this);
     }
 }

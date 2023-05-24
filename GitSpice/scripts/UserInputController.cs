@@ -20,7 +20,7 @@ public partial class UserInputController : Control
     }
 
 
-    public override void _Input(InputEvent @event)
+    public override void _UnhandledInput(InputEvent @event)
     {
         if (@event is InputEventKey key && key.Echo == false && key.Pressed == true)
         {
@@ -38,40 +38,74 @@ public partial class UserInputController : Control
             }
             if (key.Keycode == Key.L)
             {
+                ResetConnecting();
+                Toolbar.Instance.Reset();
                 LoadCircuit();
                 GetViewport().SetInputAsHandled();
                 return;
             }
         }
 
-        if (ConnectingWire != null && @event is InputEventMouseButton mouseClicked && mouseClicked.ButtonIndex == MouseButton.Right)
+        if (@event is InputEventMouseButton mouseClicked && mouseClicked.Pressed)
         {
-            ResetConnecting();
-            GetViewport().SetInputAsHandled();
-            return;
+            // Create new Element
+            if (ConnectingWire == null && mouseClicked.ButtonIndex == MouseButton.Left)
+            {
+                Logger.Debug("Creating new Element");
+
+                if (Toolbar.Instance.SelectedElement == null)
+                {
+                    Logger.Debug("SelectedElement in Toolbar is null, returning");
+                    return;
+                }
+
+                CreateElement(Toolbar.Instance.SelectedElement, mouseClicked.Position);
+
+                GetViewport().SetInputAsHandled();
+                return;
+            }
+
+            // Create Pole
+            if (ConnectingWire != null && mouseClicked.ButtonIndex == MouseButton.Left)
+            {
+                //TODO: Cache pole elementdef
+                var createdPole = CreateElement(ElementProvider.Instance.GetElementDefinition("Pole"), mouseClicked.Position);
+
+                ConnectingWireConnect(createdPole.Ports[0]);
+                StartConnecting(createdPole.Ports[0]);
+
+                GetViewport().SetInputAsHandled();
+                return;
+            }
+
+            // Reset connecting
+            if (ConnectingWire != null && mouseClicked.ButtonIndex == MouseButton.Right)
+            {
+                //TODO: Remove all Poles
+                // var x = CurrentlyConnecting;
+                // while (x.ParentElement.Data.Type == "Pole")
+                // {
+                //     CircuitManager.Instance.
+                // }
+
+                ResetConnecting();
+                GetViewport().SetInputAsHandled();
+                return;
+            }
         }
+
         if (ConnectingWire != null && @event is InputEventMouseMotion mouseMoved)
         {
             ConnectingWire.Points = new Vector2[] { CurrentlyConnecting.Centroid, mouseMoved.GlobalPosition };
         }
     }
 
-    public override void _UnhandledInput(InputEvent @event)
+    private Element CreateElement(ElementDefinition elementDef, Vector2 position)
     {
-        if (@event is InputEventMouseButton e && e.ButtonIndex == MouseButton.Left && e.Pressed)
-        {
-            Logger.Debug("Creating new Element");
-
-            if (Toolbar.Instance.SelectedElement == null)
-            {
-                Logger.Debug("SelectedElement in Toolbar is null, returning");
-                return;
-            }
-
-            var elementData = ElementProvider.Instance.NewElementData(Toolbar.Instance.SelectedElement);
-            var elementScene = CircuitManager.Instance.CreateElement(elementData);
-            CircuitManager.Instance.MoveElement(elementScene, e.Position);
-        }
+        var elementData = ElementProvider.Instance.NewElementData(elementDef);
+        var elementScene = CircuitManager.Instance.CreateElement(elementData);
+        CircuitManager.Instance.MoveElement(elementScene, position);
+        return elementScene;
     }
 
     private void ResetConnecting()
@@ -83,26 +117,32 @@ public partial class UserInputController : Control
         CurrentlyConnecting = null;
     }
 
-    public void ConnectClicked(ElementPort clickedPort)
+    public void ElementPortClicked(ElementPort clickedPort)
     {
         if (CurrentlyConnecting != null)
-        {
-            if (!CircuitManager.Instance.ConnectionExists(CurrentlyConnecting.Data.Id, clickedPort.Data.Id))
-            {
-                CircuitManager.Instance.ConnectPorts(CurrentlyConnecting, clickedPort);
-            }
-            else
-                Logger.Warn($"Tried to create already existing connection! (Port1: {CurrentlyConnecting.Data.Id}, Port2: {clickedPort.Data.Id})");
+            ConnectingWireConnect(clickedPort);
+        else
+            StartConnecting(clickedPort);
+    }
 
-            ResetConnecting();
+    private void ConnectingWireConnect(ElementPort clickedPort)
+    {
+        if (!CircuitManager.Instance.ConnectionExists(CurrentlyConnecting.Data.Id, clickedPort.Data.Id))
+        {
+            CircuitManager.Instance.ConnectPorts(CurrentlyConnecting, clickedPort);
         }
         else
-        {
-            CurrentlyConnecting = clickedPort;
+            Logger.Warn($"Tried to create already existing connection! (Port1: {CurrentlyConnecting.Data.Id}, Port2: {clickedPort.Data.Id})");
 
-            ConnectingWire = CircuitManager.Instance.CreateLine2D(new Vector2[] { CurrentlyConnecting.Centroid });
-            ConnectingWire.DefaultColor = Colors.LawnGreen;
-        }
+        ResetConnecting();
+    }
+
+    private void StartConnecting(ElementPort clickedPort)
+    {
+        CurrentlyConnecting = clickedPort;
+
+        ConnectingWire = CircuitManager.Instance.CreateLine2D(new Vector2[] { CurrentlyConnecting.Centroid });
+        ConnectingWire.DefaultColor = Colors.LawnGreen;
     }
 
     public void MoveElement(Element element, InputEventMouseMotion e)

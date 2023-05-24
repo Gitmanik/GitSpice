@@ -7,8 +7,11 @@ public partial class Element : Control
     private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     public ElementData Data;
     public List<ElementPort> Ports;
-    bool Moving = false;
 
+    //TODO: Private set
+    public bool Moving = false;
+
+    // TODO: Expose as configurable variable
     private const float RotationAmount = 0.33f;
 
     public override void _Ready()
@@ -46,7 +49,7 @@ public partial class Element : Control
             UserInputController.Instance.MoveElement(this, mouseMove);
         }
 
-        if (Moving && @event is InputEventMouseButton mouseButton && mouseButton.IsPressed())
+        if (Moving && @event is InputEventMouseButton mouseButton && mouseButton.IsPressed() && ElementProvider.Instance.GetElementDefinition(Data.Type).AllowRotation)
         {
             if (mouseButton.ButtonIndex == MouseButton.WheelUp)
             {

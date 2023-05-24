@@ -84,7 +84,7 @@ public partial class CircuitManager : Node
         }
         Circuit.Elements.Add(data);
 
-        var elementDef = ElementProvider.Instance.GetElement(data.Type);
+        var elementDef = ElementProvider.Instance.GetElementDefinition(data.Type);
         var elementScene = elementDef.Scene.Instantiate<Element>();
         BindElement(data, elementScene);
 
@@ -186,7 +186,7 @@ public partial class CircuitManager : Node
 
         foreach (var eldata in Circuit.Elements)
         {
-            var elementDef = ElementProvider.Instance.GetElement(eldata.Type);
+            var elementDef = ElementProvider.Instance.GetElementDefinition(eldata.Type);
             var newElement = elementDef.Scene.Instantiate<Element>();
 
             newElement.Data = eldata;

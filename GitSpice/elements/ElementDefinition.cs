@@ -17,4 +17,10 @@ public partial class ElementDefinition : Resource
 
     [Export]
     public Texture2D ToolbarTexture;
+
+    [Export]
+    public bool ShowInToolbar = true;
+
+    [Export]
+    public bool AllowRotation = true;
 }
