@@ -227,14 +227,27 @@ public partial class CircuitManager : Node
         return line;
     }
 
+    /// <summary>
+    /// Removes given element completely from Circuit (Scene, CircuitManager and Circuit)
+    /// </summary>
+    /// <param name="element">Element to remove</param>
     public void DeleteElement(Element element)
     {
-        //TODO: Implement
-        throw new NotImplementedException();
+        foreach (ElementPort port in element.Ports)
+        {
+            var conns = BoundConnections.FindAll(x => (x.Port1.Data.Id == port.Data.Id || x.Port2.Data.Id == port.Data.Id));
 
-        // Disconnect all connections (BoundConnection)
-        // Remove from BoundElements
-        // Remove element from Circuit
+            foreach (var conn in conns)
+            {
+                conn.Line.QueueFree();
+                Circuit.Connections.Remove(conn.Data);
+                BoundConnections.Remove(conn);
+            }
+        }
+
+        BoundElements.RemoveAll(x => x.Element == element);
+        Circuit.Elements.Remove(element.Data);
+
         element.QueueFree();
     }
 }
