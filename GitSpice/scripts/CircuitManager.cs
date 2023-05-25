@@ -44,7 +44,20 @@ public partial class CircuitManager : Node
     }
 
     #region Binding
+    /// <summary>
+    /// Finds all Bound connections related to given Port Id
+    /// </summary>
+    /// <param name="Port">Port Id</param>
+    /// <returns>List of BoundConnection</returns>
     private List<BoundConnection> FindBoundConnections(string Port) => BoundConnections.FindAll(x => x.Data.IsConnected(Port));
+
+    /// <summary>
+    /// Bounds connection
+    /// </summary>
+    /// <param name="conn"></param>
+    /// <param name="Port1"></param>
+    /// <param name="Port2"></param>
+    /// <param name="line"></param>
     private void BindConnection(ConnectionData conn, ElementPort Port1, ElementPort Port2, Line2D line)
     {
         BoundConnections.Add(new BoundConnection { Data = conn, Port1 = Port1, Port2 = Port2, Line = line });
@@ -150,6 +163,11 @@ public partial class CircuitManager : Node
     }
 
 
+    /// <summary>
+    /// Rotates element in scene and in Circuit data
+    /// </summary>
+    /// <param name="element"></param>
+    /// <param name="rotation"></param>
     internal void RotateElement(Element element, float rotation)
     {
         element.Rotation = rotation;
@@ -158,6 +176,10 @@ public partial class CircuitManager : Node
         UpdateConnections(element);
     }
 
+    /// <summary>
+    /// Updates Line2Ds connected to all ports of given element
+    /// </summary>
+    /// <param name="element">Element to update</param>
     private void UpdateConnections(Element element)
     {
         //Update connections
@@ -171,6 +193,10 @@ public partial class CircuitManager : Node
         }
     }
 
+    /// <summary>
+    /// Clears the scene and loads elements and circuit from given Circuit data
+    /// </summary>
+    /// <param name="circuit">Circuit data to load</param>
     public void LoadCircuit(CircuitData circuit)
     {
         Logger.Debug("Loading Circuit");
@@ -228,7 +254,7 @@ public partial class CircuitManager : Node
     }
 
     /// <summary>
-    /// Removes given element completely from Circuit (Scene, CircuitManager and Circuit)
+    /// Removes given element completely from Circuit (Scene, CircuitManager and Circuit data)
     /// </summary>
     /// <param name="element">Element to remove</param>
     public void DeleteElement(Element element)
