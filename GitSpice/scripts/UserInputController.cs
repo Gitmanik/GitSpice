@@ -9,18 +9,28 @@ public partial class UserInputController : Control
 
     private ElementPort CurrentlyConnecting;
     private Line2D ConnectingWire;
-
     private Control ElementContainerScene;
+
+    private ElementDefinition PoleElementDef;
+
+    /// <summary>
+    /// Calculates position relative to moved ElementContainer (dragged by user)
+    /// </summary>
+    /// <param name="pos">Screen position</param>
+    /// <returns>Relative position</returns>
+    private Vector2 RelativePosition(Vector2 pos) => pos - Position;
 
     public override void _Ready()
     {
         ElementContainerScene = GetNode<Control>(CircuitManager.ElementContainerPath);
-
+        PoleElementDef = ElementProvider.Instance.GetElementDefinition("Pole");
         Instance = this;
     }
 
     bool mouseClickedBool = false;
-    Vector2 lastMousePos;
+    bool mouseDragging = false;
+    Vector2 lastMouseDraggingPos;
+
     public override void _UnhandledInput(InputEvent @event)
     {
         if (@event is InputEventKey key && key.Echo == false && key.Pressed == true)
@@ -49,11 +59,12 @@ public partial class UserInputController : Control
 
         if (@event is InputEventMouseMotion mousemMoved && mouseClickedBool)
         {
-            Vector2 delta = mousemMoved.Position - lastMousePos;
+            mouseDragging = true;
+            Vector2 delta = mousemMoved.Position - lastMouseDraggingPos;
 
             ElementContainerScene.Position += delta;
 
-            lastMousePos = mousemMoved.Position;
+            lastMouseDraggingPos = mousemMoved.Position;
             GetViewport().SetInputAsHandled();
             return;
         }
@@ -61,11 +72,13 @@ public partial class UserInputController : Control
         if (@event is InputEventMouseButton mouseClicked)
         {
             if (mouseClicked.Pressed)
-                lastMousePos = mouseClicked.Position;
+                lastMouseDraggingPos = mouseClicked.Position;
+
+            GD.Print(mouseDragging);
 
             mouseClickedBool = mouseClicked.Pressed;
             // Create new Element
-            if (ConnectingWire == null && mouseClicked.ButtonIndex == MouseButton.Left && !mouseClicked.Pressed)
+            if (ConnectingWire == null && mouseClicked.ButtonIndex == MouseButton.Left && !mouseClicked.Pressed && !mouseDragging)
             {
                 Logger.Debug("Creating new Element");
 
@@ -75,7 +88,7 @@ public partial class UserInputController : Control
                     return;
                 }
 
-                CreateElement(Toolbar.Instance.SelectedElement, mouseClicked.Position);
+                CreateElement(Toolbar.Instance.SelectedElement, RelativePosition(mouseClicked.Position));
 
                 GetViewport().SetInputAsHandled();
                 return;
@@ -84,8 +97,7 @@ public partial class UserInputController : Control
             // Create Pole
             if (ConnectingWire != null && mouseClicked.ButtonIndex == MouseButton.Left && !mouseClicked.Pressed)
             {
-                //TODO: Cache pole elementdef
-                var createdPole = CreateElement(ElementProvider.Instance.GetElementDefinition("Pole"), mouseClicked.Position);
+                var createdPole = CreateElement(PoleElementDef, RelativePosition(mouseClicked.Position));
 
                 ConnectingWireConnect(createdPole.Ports[0]);
                 StartConnecting(createdPole.Ports[0]);
@@ -108,11 +120,12 @@ public partial class UserInputController : Control
                 GetViewport().SetInputAsHandled();
                 return;
             }
+            mouseDragging = false;
         }
 
         if (ConnectingWire != null && @event is InputEventMouseMotion mouseMoved)
         {
-            ConnectingWire.Points = new Vector2[] { CurrentlyConnecting.Centroid, mouseMoved.GlobalPosition };
+            ConnectingWire.Points = new Vector2[] { CurrentlyConnecting.Centroid, RelativePosition(mouseMoved.Position) };
         }
     }
 

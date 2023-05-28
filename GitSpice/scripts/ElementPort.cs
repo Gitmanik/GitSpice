@@ -6,7 +6,7 @@ public partial class ElementPort : Button
 
     public Element ParentElement;
 
-    public Vector2 Centroid => ParentElement.Position + Position + CalculateCentroid();
+    public Vector2 Centroid => ParentElement.Position + Position.Rotated(ParentElement.Rotation) + CalculateCentroid();
 
     private Vector2 CalculateCentroid()
     {
