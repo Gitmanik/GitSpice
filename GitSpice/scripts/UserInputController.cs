@@ -10,16 +10,17 @@ public partial class UserInputController : Control
     private ElementPort CurrentlyConnecting;
     private Line2D ConnectingWire;
 
-    private Node ElementContainerScene;
+    private Control ElementContainerScene;
 
     public override void _Ready()
     {
-        ElementContainerScene = GetNode(CircuitManager.ElementContainerPath);
+        ElementContainerScene = GetNode<Control>(CircuitManager.ElementContainerPath);
 
         Instance = this;
     }
 
-
+    bool mouseClickedBool = false;
+    Vector2 lastMousePos;
     public override void _UnhandledInput(InputEvent @event)
     {
         if (@event is InputEventKey key && key.Echo == false && key.Pressed == true)
@@ -46,10 +47,25 @@ public partial class UserInputController : Control
             }
         }
 
-        if (@event is InputEventMouseButton mouseClicked && mouseClicked.Pressed)
+        if (@event is InputEventMouseMotion mousemMoved && mouseClickedBool)
         {
+            Vector2 delta = lastMousePos - mousemMoved.Position;
+
+            ElementContainerScene.Position += delta;
+
+            lastMousePos = mousemMoved.Position;
+            GetViewport().SetInputAsHandled();
+            return;
+        }
+
+        if (@event is InputEventMouseButton mouseClicked)
+        {
+            if (mouseClicked.Pressed)
+                lastMousePos = mouseClicked.Position;
+
+            mouseClickedBool = mouseClicked.Pressed;
             // Create new Element
-            if (ConnectingWire == null && mouseClicked.ButtonIndex == MouseButton.Left)
+            if (ConnectingWire == null && mouseClicked.ButtonIndex == MouseButton.Left && !mouseClicked.Pressed)
             {
                 Logger.Debug("Creating new Element");
 
@@ -66,7 +82,7 @@ public partial class UserInputController : Control
             }
 
             // Create Pole
-            if (ConnectingWire != null && mouseClicked.ButtonIndex == MouseButton.Left)
+            if (ConnectingWire != null && mouseClicked.ButtonIndex == MouseButton.Left && !mouseClicked.Pressed)
             {
                 //TODO: Cache pole elementdef
                 var createdPole = CreateElement(ElementProvider.Instance.GetElementDefinition("Pole"), mouseClicked.Position);
@@ -79,7 +95,7 @@ public partial class UserInputController : Control
             }
 
             // Reset connecting
-            if (ConnectingWire != null && mouseClicked.ButtonIndex == MouseButton.Right)
+            if (ConnectingWire != null && mouseClicked.ButtonIndex == MouseButton.Right && !mouseClicked.Pressed)
             {
                 //TODO: Remove all Poles
                 // var x = CurrentlyConnecting;
@@ -147,13 +163,14 @@ public partial class UserInputController : Control
 
     public void MoveElement(Element element, InputEventMouseMotion e)
     {
-        CircuitManager.Instance.MoveElement(element, e.Position);
+        CircuitManager.Instance.MoveElement(element, e.GlobalPosition - ElementContainerScene.Position);
         GetViewport().SetInputAsHandled();
     }
 
     public void LoadCircuit()
     {
         ResetConnecting();
+        ElementContainerScene.Position = Vector2.Zero;
 
         var circuitFile = FileAccess.Open(CircuitSavePath, FileAccess.ModeFlags.Read);
         var circuitJsonText = circuitFile.GetAsText();
