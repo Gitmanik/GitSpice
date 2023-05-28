@@ -50,7 +50,6 @@ public partial class UserInputController : Control
             if (key.Keycode == Key.L)
             {
                 ResetConnecting();
-                Toolbar.Instance.Reset();
                 LoadCircuit();
                 GetViewport().SetInputAsHandled();
                 return;
@@ -73,8 +72,6 @@ public partial class UserInputController : Control
         {
             if (mouseClicked.Pressed)
                 lastMouseDraggingPos = mouseClicked.Position;
-
-            GD.Print(mouseDragging);
 
             mouseClickedBool = mouseClicked.Pressed;
             // Create new Element
@@ -182,6 +179,7 @@ public partial class UserInputController : Control
 
     public void LoadCircuit()
     {
+        Toolbar.Instance.Reset();
         ResetConnecting();
         ElementContainerScene.Position = Vector2.Zero;
 
