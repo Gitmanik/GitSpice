@@ -6,7 +6,7 @@ public partial class ElementPort : Button
 
     public Element ParentElement;
 
-    public Vector2 Centroid => GlobalPosition + CalculateCentroid();
+    public Vector2 Centroid => ParentElement.Position + Position + CalculateCentroid();
 
     private Vector2 CalculateCentroid()
     {
@@ -16,6 +16,7 @@ public partial class ElementPort : Button
 
         localCentroid.X = localCenter.X * Mathf.Cos(ParentElement.Rotation) - localCenter.Y * Mathf.Sin(ParentElement.Rotation);
         localCentroid.Y = localCenter.X * Mathf.Sin(ParentElement.Rotation) + localCenter.Y * Mathf.Cos(ParentElement.Rotation);
+
         return localCentroid;
     }
 

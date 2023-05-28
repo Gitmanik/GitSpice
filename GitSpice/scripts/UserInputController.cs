@@ -49,7 +49,7 @@ public partial class UserInputController : Control
 
         if (@event is InputEventMouseMotion mousemMoved && mouseClickedBool)
         {
-            Vector2 delta = lastMousePos - mousemMoved.Position;
+            Vector2 delta = mousemMoved.Position - lastMousePos;
 
             ElementContainerScene.Position += delta;
 
