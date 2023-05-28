@@ -1,0 +1,49 @@
+[gd_scene load_steps=4 format=3 uid="uid://enn2pkg2mfsr"]
+
+[ext_resource type="Script" path="res://scripts/Element.cs" id="1_gnayi"]
+[ext_resource type="Texture2D" uid="uid://bi27773hlmr43" path="res://elements/symbols/ammeter.png" id="2_0le4d"]
+[ext_resource type="Script" path="res://scripts/ElementPort.cs" id="3_xdxgx"]
+
+[node name="Current Source" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_gnayi")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = -32.0
+offset_top = -32.0
+offset_right = 32.0
+offset_bottom = 32.0
+mouse_force_pass_scroll_events = false
+texture = ExtResource("2_0le4d")
+
+[node name="Ports" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Port2" type="Button" parent="Ports"]
+layout_mode = 0
+offset_left = 21.0
+offset_top = -8.0
+offset_right = 37.0
+offset_bottom = 8.0
+action_mode = 0
+script = ExtResource("3_xdxgx")
+
+[node name="Port1" type="Button" parent="Ports"]
+layout_mode = 0
+offset_left = -37.0
+offset_top = -8.0
+offset_right = -21.0
+offset_bottom = 8.0
+action_mode = 0
+script = ExtResource("3_xdxgx")
+
+[connection signal="gui_input" from="TextureRect" to="." method="_TextureRectGuiInput"]
