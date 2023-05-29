@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Godot;
 using Newtonsoft.Json;
 
@@ -35,6 +37,13 @@ public partial class UserInputController : Control
     {
         if (@event is InputEventKey key && key.Echo == false && key.Pressed == true)
         {
+            if (key.Keycode == Key.C)
+            {
+                TestJunction();
+                GetViewport().SetInputAsHandled();
+                return;
+            }
+
             if (key.Keycode == Key.Backspace)
             {
                 Logger.Warn(JsonConvert.SerializeObject(CircuitManager.Instance.Circuit));
@@ -124,6 +133,54 @@ public partial class UserInputController : Control
         {
             ConnectingWire.Points = new Vector2[] { CurrentlyConnecting.Centroid, RelativePosition(mouseMoved.Position) };
         }
+    }
+
+    private void TestJunction()
+    {
+        Dictionary<Color, HashSet<string>> junctions = new Dictionary<Color, HashSet<string>>();
+
+        byte randomByte() => Convert.ToByte(GD.Randi() % 256);
+        Color randomColor() => Color.Color8(randomByte(), randomByte(), randomByte());
+
+        foreach (var xxx in CircuitManager.Instance.Circuit.Elements)
+        {
+            var conns = new List<CircuitManager.BoundConnection>();
+            xxx.Ports.ForEach(port => conns.AddRange(CircuitManager.Instance.FindBoundConnections(port.Id)));
+            KeyValuePair<Color, HashSet<string>>? x = null;
+            foreach (var conn in conns)
+            {
+                foreach (var kvp in junctions)
+                {
+                    if (kvp.Value.Contains(conn.Port1.Data.Id) || kvp.Value.Contains(conn.Port2.Data.Id))
+                    {
+                        x = kvp;
+                        x.Value.Value.Add(conn.Port1.Data.Id);
+                        x.Value.Value.Add(conn.Port2.Data.Id);
+                    }
+                }
+                if (x == null)
+                {
+                    junctions.Add(randomColor(), new HashSet<string>() { conn.Port1.Data.Id, conn.Port2.Data.Id });
+                }
+            }
+        }
+
+        foreach (var kvp in junctions)
+        {
+            foreach (string port in kvp.Value)
+            {
+                var conns = CircuitManager.Instance.FindBoundConnections(port);
+
+                foreach (var conn in conns)
+                {
+                    conn.Line.DefaultColor = kvp.Key;
+                }
+            }
+        }
+
+        // GD.Print("Generated junctions");
+        // foreach (var kvp in junctions)
+        //     GD.Print($"{kvp.Key}:\n{string.Join('\n', kvp.Value)}");
     }
 
     private Element CreateElement(ElementDefinition elementDef, Vector2 position)
