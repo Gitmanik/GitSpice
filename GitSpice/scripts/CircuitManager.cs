@@ -306,4 +306,6 @@ public partial class CircuitManager : Node
 
         element.QueueFree();
     }
+    public string NewID() => (++Circuit.ID_ctr).ToString();
+    // public string NewID() => System.Guid.NewGuid().ToString();
 }

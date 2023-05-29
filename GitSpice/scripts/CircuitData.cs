@@ -3,10 +3,7 @@ using System.Numerics;
 
 public class CircuitData
 {
-    private static int ID_ctr = 0;
-    public static string NewID() => (++ID_ctr).ToString();
-    // public static string NewID() => System.Guid.NewGuid().ToString();
-    public string Name;
+    public int ID_ctr;
     public List<ElementData> Elements = new List<ElementData>();
     public List<ConnectionData> Connections = new List<ConnectionData>();
 }
@@ -18,7 +15,7 @@ public class ConnectionData
     {
         this.Port1 = Port1;
         this.Port2 = Port2;
-        Id = CircuitData.NewID();
+        Id = CircuitManager.Instance.NewID();
     }
 
     public readonly string Id;
@@ -34,7 +31,7 @@ public class ElementData
     public ElementData(string Type)
     {
         this.Type = Type;
-        Id = CircuitData.NewID();
+        Id = CircuitManager.Instance.NewID();
     }
 
     public readonly string Id;
@@ -49,7 +46,7 @@ public class PortData
 {
     public PortData()
     {
-        Id = CircuitData.NewID();
+        Id = CircuitManager.Instance.NewID();
     }
 
     public string Id;
