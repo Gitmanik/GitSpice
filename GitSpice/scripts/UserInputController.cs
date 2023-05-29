@@ -103,7 +103,7 @@ public partial class UserInputController : Control
             // Create Pole
             if (ConnectingWire != null && mouseClicked.ButtonIndex == MouseButton.Left && !mouseClicked.Pressed)
             {
-                var createdPole = CreateElement(PoleElementDef, RelativePosition(mouseClicked.Position));
+                var createdPole = CreateElement(PoleElementDef, SnapToGrid(RelativePosition(mouseClicked.Position)));
 
                 ConnectingWireConnect(createdPole.Ports[0]);
                 StartConnecting(createdPole.Ports[0]);
@@ -230,15 +230,23 @@ public partial class UserInputController : Control
 
     public void MoveElement(Element element, InputEventMouseMotion e)
     {
-        CircuitManager.Instance.MoveElement(element, e.GlobalPosition - ElementContainerScene.Position);
+        Vector2 v = e.GlobalPosition - ElementContainerScene.Position;
+        v = SnapToGrid(v);
+        CircuitManager.Instance.MoveElement(element, v);
         GetViewport().SetInputAsHandled();
     }
 
     public void LoadCircuit()
+    private static Vector2 SnapToGrid(Vector2 v)
     {
         Toolbar.Instance.Reset();
         ResetConnecting();
         ElementContainerScene.Position = Vector2.Zero;
+        //TODO: Make grid configurable
+        v.X = Mathf.Round(v.X / 10f) * 10f;
+        v.Y = Mathf.Round(v.Y / 10f) * 10f;
+        return v;
+    }
 
         var circuitFile = FileAccess.Open(CircuitSavePath, FileAccess.ModeFlags.Read);
         var circuitJsonText = circuitFile.GetAsText();
