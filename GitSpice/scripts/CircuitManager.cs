@@ -49,28 +49,51 @@ public partial class CircuitManager : Node
     /// </summary>
     /// <param name="Port">Port Id</param>
     /// <returns>List of BoundConnection</returns>
-    private List<BoundConnection> FindBoundConnections(string Port) => BoundConnections.FindAll(x => x.Data.IsConnected(Port));
+    public List<BoundConnection> FindBoundConnections(string Port) => BoundConnections.FindAll(x => x.Data.IsConnected(Port));
 
     /// <summary>
-    /// Bounds connection
+    /// Creates bound connection for ports. Ports should be unique
     /// </summary>
-    /// <param name="conn"></param>
-    /// <param name="Port1"></param>
-    /// <param name="Port2"></param>
+    /// <param name="conn">Connection to bind</param>
+    /// <param name="Port1">Port to bind</param>
+    /// <param name="Port2">Port to bind</param>
     /// <param name="line"></param>
-    private void BindConnection(ConnectionData conn, ElementPort Port1, ElementPort Port2, Line2D line)
+    private void CreateBoundConnection(ConnectionData conn, ElementPort Port1, ElementPort Port2, Line2D line)
     {
+        if (Port1.Data.Id == Port2.Data.Id)
+        {
+            Logger.Warn("Cannot connect port to itself!");
+            return;
+        }
+
+        // TODO: Check if BoundConnection already exists
+
         BoundConnections.Add(new BoundConnection { Data = conn, Port1 = Port1, Port2 = Port2, Line = line });
     }
 
-    private void BindElement(ElementData eldata, Element element)
+    /// <summary>
+    /// Creates bound connection for element
+    /// </summary>
+    /// <param name="eldata">Element data</param>
+    /// <param name="element">Scene element</param>
+    private void CreateBoundElement(ElementData eldata, Element element)
     {
+        if (BoundElements.Find(x => (x.Element == element || x.Data == eldata)) != null)
+        {
+            Logger.Warn("Tried to create BoundElement which already exists!");
+            return;
+        }
         BoundElements.Add(new BoundElement { Data = eldata, Element = element });
         element.Data = eldata;
     }
 
     #endregion
 
+    /// <summary>
+    /// Finds ElementPort object for given Port Id
+    /// </summary>
+    /// <param name="Port">Port Id</param>
+    /// <returns>ElementPort scene object</returns>
     public ElementPort FindElementPort(string Port)
     {
         foreach (var element in BoundElements)
@@ -99,7 +122,7 @@ public partial class CircuitManager : Node
 
         var elementDef = ElementProvider.Instance.GetElementDefinition(data.Type);
         var elementScene = elementDef.Scene.Instantiate<Element>();
-        BindElement(data, elementScene);
+        CreateBoundElement(data, elementScene);
 
         ElementContainerScene.AddChild(elementScene);
 
@@ -127,7 +150,7 @@ public partial class CircuitManager : Node
 
         var line = CreateLine2D(new Vector2[] { Port1.Centroid, Port2.Centroid });
 
-        BindConnection(conn, Port1, Port2, line);
+        CreateBoundConnection(conn, Port1, Port2, line);
 
         return conn;
     }
@@ -161,7 +184,6 @@ public partial class CircuitManager : Node
 
         UpdateConnections(element);
     }
-
 
     /// <summary>
     /// Rotates element in scene and in Circuit data
@@ -219,7 +241,7 @@ public partial class CircuitManager : Node
             newElement.Position = new Vector2(eldata.Position.X, eldata.Position.Y);
             newElement.Rotation = eldata.Rotation;
 
-            BindElement(eldata, newElement);
+            CreateBoundElement(eldata, newElement);
 
             ElementContainerScene.AddChild(newElement);
         }
@@ -231,7 +253,7 @@ public partial class CircuitManager : Node
 
             var line = CreateLine2D(new Vector2[] { port1.Centroid, port2.Centroid });
 
-            BindConnection(conn, port1, port2, line);
+            CreateBoundConnection(conn, port1, port2, line);
 
         }
     }
