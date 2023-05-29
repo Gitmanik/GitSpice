@@ -20,6 +20,12 @@ public partial class ElementPort : Button
         return localCentroid;
     }
 
+    public override void _Draw()
+    {
+        // TODO: This should be togglable in config
+        DrawString(ThemeDB.FallbackFont, Vector2.Zero, Data.Id, HorizontalAlignment.Center);
+    }
+
     public override void _Pressed()
     {
         // Stop moving when Port is clicked (Pole having port in the middle fix)

@@ -32,6 +32,12 @@ public partial class Element : Control
         Name = Data.Id;
     }
 
+    public override void _Draw()
+    {
+        // TODO: This should be togglable in config
+        DrawString(ThemeDB.FallbackFont, Vector2.Zero, Data.Id, HorizontalAlignment.Center);
+    }
+
     public void _TextureRectGuiInput(InputEvent @event)
     {
         if (@event is InputEventMouseButton mouseClick && mouseClick.ButtonIndex == MouseButton.Left && mouseClick.Pressed)
