@@ -142,26 +142,24 @@ public partial class UserInputController : Control
         byte randomByte() => Convert.ToByte(GD.Randi() % 256);
         Color randomColor() => Color.Color8(randomByte(), randomByte(), randomByte());
 
-        foreach (var xxx in CircuitManager.Instance.Circuit.Elements)
+        foreach (var boundConn in CircuitManager.Instance.GetBoundConnections())
         {
-            var conns = new List<CircuitManager.BoundConnection>();
-            xxx.Ports.ForEach(port => conns.AddRange(CircuitManager.Instance.FindBoundConnections(port.Id)));
-            KeyValuePair<Color, HashSet<string>>? x = null;
-            foreach (var conn in conns)
+            bool foundJunction = false;
+            Logger.Debug($"Parsing BoundConnection: {boundConn.Port1.Data.Id} {boundConn.Port2.Data.Id}");
+            foreach (var junction in junctions)
             {
-                foreach (var kvp in junctions)
+                if (junction.Value.Contains(boundConn.Port1.Data.Id) || junction.Value.Contains(boundConn.Port2.Data.Id))
                 {
-                    if (kvp.Value.Contains(conn.Port1.Data.Id) || kvp.Value.Contains(conn.Port2.Data.Id))
-                    {
-                        x = kvp;
-                        x.Value.Value.Add(conn.Port1.Data.Id);
-                        x.Value.Value.Add(conn.Port2.Data.Id);
-                    }
+                    Logger.Debug($"Adding to existing junction: {boundConn.Port1.Data.Id} {boundConn.Port2.Data.Id}");
+                    junction.Value.Add(boundConn.Port1.Data.Id);
+                    junction.Value.Add(boundConn.Port2.Data.Id);
+                    foundJunction = true;
                 }
-                if (x == null)
-                {
-                    junctions.Add(randomColor(), new HashSet<string>() { conn.Port1.Data.Id, conn.Port2.Data.Id });
-                }
+            }
+            if (!foundJunction)
+            {
+                Logger.Debug($"Created junction: {boundConn.Port1.Data.Id} {boundConn.Port2.Data.Id}");
+                junctions.Add(randomColor(), new HashSet<string>() { boundConn.Port1.Data.Id, boundConn.Port2.Data.Id });
             }
         }
 
@@ -178,9 +176,11 @@ public partial class UserInputController : Control
             }
         }
 
-        // GD.Print("Generated junctions");
-        // foreach (var kvp in junctions)
-        //     GD.Print($"{kvp.Key}:\n{string.Join('\n', kvp.Value)}");
+
+        string debugJunctions = "";
+        foreach (var kvp in junctions)
+            debugJunctions += $"{kvp.Key}:\n{string.Join('\n', kvp.Value)}\n";
+        Logger.Debug($"Generated junctions:\n{debugJunctions}");
     }
 
     private Element CreateElement(ElementDefinition elementDef, Vector2 position)

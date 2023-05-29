@@ -44,6 +44,14 @@ public partial class CircuitManager : Node
     }
 
     #region Binding
+
+    /// <summary>
+    /// Creates a copy of BoundConnetions
+    /// </summary>
+    /// <typeparam name="BoundConnection"></typeparam>
+    /// <returns>Copy of BoundConnections list</returns>
+    public List<BoundConnection> GetBoundConnections() => new List<BoundConnection>(BoundConnections);
+
     /// <summary>
     /// Finds all Bound connections related to given Port Id
     /// </summary>
