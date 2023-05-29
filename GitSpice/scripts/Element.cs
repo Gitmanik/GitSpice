@@ -59,7 +59,7 @@ public partial class Element : Control
         {
             if (mouseButton.ButtonIndex == MouseButton.Right)
             {
-                CircuitManager.Instance.DeleteElement(this);
+                CircuitManager.Instance.RemoveElement(this);
                 GetViewport().SetInputAsHandled();
                 return;
             }

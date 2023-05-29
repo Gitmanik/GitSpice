@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Godot;
-using Newtonsoft.Json;
 
 public partial class UserInputController : Control
 {
@@ -46,7 +45,7 @@ public partial class UserInputController : Control
 
             if (key.Keycode == Key.Backspace)
             {
-                Logger.Warn(JsonConvert.SerializeObject(CircuitManager.Instance.Circuit));
+                Logger.Info(CircuitManager.Instance.SaveCircuit());
                 GetViewport().SetInputAsHandled();
                 return;
             }
@@ -115,13 +114,6 @@ public partial class UserInputController : Control
             // Reset connecting
             if (ConnectingWire != null && mouseClicked.ButtonIndex == MouseButton.Right && !mouseClicked.Pressed)
             {
-                //TODO: Remove all Poles
-                // var x = CurrentlyConnecting;
-                // while (x.ParentElement.Data.Type == "Pole")
-                // {
-                //     CircuitManager.Instance.
-                // }
-
                 ResetConnecting();
                 GetViewport().SetInputAsHandled();
                 return;
@@ -191,7 +183,7 @@ public partial class UserInputController : Control
         return elementScene;
     }
 
-    private void ResetConnecting()
+    public void ResetConnecting()
     {
         if (ConnectingWire != null)
             ConnectingWire.QueueFree();
@@ -236,27 +228,22 @@ public partial class UserInputController : Control
         GetViewport().SetInputAsHandled();
     }
 
-    public void LoadCircuit()
     private static Vector2 SnapToGrid(Vector2 v)
     {
-        Toolbar.Instance.Reset();
-        ResetConnecting();
-        ElementContainerScene.Position = Vector2.Zero;
         //TODO: Make grid configurable
         v.X = Mathf.Round(v.X / 10f) * 10f;
         v.Y = Mathf.Round(v.Y / 10f) * 10f;
         return v;
     }
 
+    public void LoadCircuit()
+    {
+        Logger.Info($"Loading circuit from {CircuitSavePath}");
         var circuitFile = FileAccess.Open(CircuitSavePath, FileAccess.ModeFlags.Read);
         var circuitJsonText = circuitFile.GetAsText();
         circuitFile.Close();
 
-        Logger.Debug($"Loading CircuitData:\n{circuitJsonText}");
-
-        var circuit = JsonConvert.DeserializeObject<CircuitData>(circuitJsonText);
-
-        CircuitManager.Instance.LoadCircuit(circuit);
+        CircuitManager.Instance.LoadCircuit(circuitJsonText);
     }
 
     public void SaveCircuit()
@@ -264,7 +251,7 @@ public partial class UserInputController : Control
         Logger.Info("Saving current Circuit state");
 
         var circuitFile = FileAccess.Open(CircuitSavePath, FileAccess.ModeFlags.Write);
-        var circuitJsonText = JsonConvert.SerializeObject(CircuitManager.Instance.Circuit);
+        var circuitJsonText = CircuitManager.Instance.SaveCircuit();
 
         circuitFile.StoreString(circuitJsonText);
         circuitFile.Close();

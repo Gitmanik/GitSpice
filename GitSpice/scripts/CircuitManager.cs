@@ -27,18 +27,18 @@ public partial class CircuitManager : Node
     private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     public static CircuitManager Instance;
 
-    public CircuitData Circuit = new CircuitData();
+    private CircuitData Circuit = new CircuitData();
 
     private List<BoundElement> BoundElements = new List<BoundElement>();
     private List<BoundConnection> BoundConnections = new List<BoundConnection>();
 
     public static readonly string ElementContainerPath = "/root/main/ElementContainer";
-    private Node ElementContainerScene;
+    private Control ElementContainerScene;
 
     public override void _Ready()
     {
         Logger.Info("CircuitManager starting");
-        ElementContainerScene = GetNode(ElementContainerPath);
+        ElementContainerScene = GetNode<Control>(ElementContainerPath);
 
         Instance = this;
     }
@@ -224,12 +224,28 @@ public partial class CircuitManager : Node
     }
 
     /// <summary>
+    /// Saves all data to CircuitData and serializes it to JSON
+    /// </summary>
+    /// <returns>JSON of CircuitData</returns>
+    public string SaveCircuit()
+    {
+        Circuit.UserPosition = ElementContainerScene.Position.ToNumerics();
+        return Newtonsoft.Json.JsonConvert.SerializeObject(CircuitManager.Instance.Circuit);
+    }
+
+    /// <summary>
     /// Clears the scene and loads elements and circuit from given Circuit data
     /// </summary>
     /// <param name="circuit">Circuit data to load</param>
-    public void LoadCircuit(CircuitData circuit)
+    public void LoadCircuit(string circuitJsonText)
     {
-        Logger.Debug("Loading Circuit");
+        Logger.Debug($"Loading CircuitData:\n{circuitJsonText}");
+
+        var circuit = Newtonsoft.Json.JsonConvert.DeserializeObject<CircuitData>(circuitJsonText);
+        // var circuit = System.Text.Json.JsonSerializer.Deserialize<CircuitData>(circuitJsonText);
+
+        Toolbar.Instance.Reset();
+        UserInputController.Instance.ResetConnecting();
 
         Circuit = circuit;
         BoundConnections.Clear();
@@ -239,6 +255,8 @@ public partial class CircuitManager : Node
         {
             child.QueueFree();
         }
+
+        ElementContainerScene.Position = Circuit.UserPosition.ToGodot();
 
         foreach (var eldata in Circuit.Elements)
         {
@@ -287,7 +305,7 @@ public partial class CircuitManager : Node
     /// Removes given element completely from Circuit (Scene, CircuitManager and Circuit data)
     /// </summary>
     /// <param name="element">Element to remove</param>
-    public void DeleteElement(Element element)
+    public void RemoveElement(Element element)
     {
         foreach (ElementPort port in element.Ports)
         {
@@ -307,5 +325,6 @@ public partial class CircuitManager : Node
         element.QueueFree();
     }
     public string NewID() => (++Circuit.ID_ctr).ToString();
-    // public string NewID() => System.Guid.NewGuid().ToString();
+
+    public List<Element> FindElementsOfType(string type) => BoundElements.FindAll(x => x.Element.Data.Type == type).ConvertAll(x => x.Element);
 }
