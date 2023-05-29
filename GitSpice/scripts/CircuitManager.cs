@@ -324,7 +324,17 @@ public partial class CircuitManager : Node
 
         element.QueueFree();
     }
+
+    /// <summary>
+    /// Generates new ID
+    /// </summary>
+    /// <returns>String of ID</returns>
     public string NewID() => (++Circuit.ID_ctr).ToString();
 
+    /// <summary>
+    /// Finds Elements of given type in BoundElements list
+    /// </summary>
+    /// <param name="type">Type of element</param>
+    /// <returns>List of Elements with type</returns>
     public List<Element> FindElementsOfType(string type) => BoundElements.FindAll(x => x.Element.Data.Type == type).ConvertAll(x => x.Element);
 }
