@@ -12,7 +12,7 @@ public partial class ElementPort : Button
     {
         //https://gamedev.stackexchange.com/questions/57211/how-to-get-the-center-of-a-rotated-rectangle-regardless-of-point-of-rotation
         Vector2 localCentroid = new Vector2();
-        Vector2 localCenter = (GetGlobalRect().Size / 2);
+        Vector2 localCenter = (GetRect().Size / 2);
 
         localCentroid.X = localCenter.X * Mathf.Cos(ParentElement.Rotation) - localCenter.Y * Mathf.Sin(ParentElement.Rotation);
         localCentroid.Y = localCenter.X * Mathf.Sin(ParentElement.Rotation) + localCenter.Y * Mathf.Cos(ParentElement.Rotation);
@@ -32,6 +32,7 @@ public partial class ElementPort : Button
         if (ParentElement.Moving)
         {
             ParentElement.Moving = false;
+            Element.IsCurrentlyMoving = false;
             this.ButtonPressed = false;
             return;
         }

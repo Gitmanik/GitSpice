@@ -11,6 +11,11 @@ public partial class Element : Control
     //TODO: Private set
     public bool Moving = false;
 
+    /// <summary>
+    /// Indicates whether any Element is moving
+    /// </summary>
+    public static bool IsCurrentlyMoving = false;
+
     // TODO: Expose as configurable variable
     private const float RotationAmount = 2 * Mathf.Pi / 8f;
 
@@ -43,6 +48,7 @@ public partial class Element : Control
         if (@event is InputEventMouseButton mouseClick && mouseClick.ButtonIndex == MouseButton.Left && mouseClick.Pressed)
         {
             Moving = !Moving;
+            IsCurrentlyMoving = Moving;
             Logger.Debug($"Moving: {Name} {Moving}");
             GetViewport().SetInputAsHandled();
         }
@@ -53,6 +59,8 @@ public partial class Element : Control
         if (Moving && @event is InputEventMouseMotion mouseMove)
         {
             UserInputController.Instance.MoveElement(this, mouseMove);
+            GetViewport().SetInputAsHandled();
+            return;
         }
 
         if (Moving && @event is InputEventMouseButton mouseButton && mouseButton.IsPressed())

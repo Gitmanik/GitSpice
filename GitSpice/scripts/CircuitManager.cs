@@ -246,6 +246,7 @@ public partial class CircuitManager : Node
 
         Toolbar.Instance.Reset();
         UserInputController.Instance.ResetConnecting();
+        Element.IsCurrentlyMoving = false;
 
         Circuit = circuit;
         BoundConnections.Clear();
@@ -280,7 +281,6 @@ public partial class CircuitManager : Node
             var line = CreateLine2D(new Vector2[] { port1.Centroid, port2.Centroid });
 
             CreateBoundConnection(conn, port1, port2, line);
-
         }
     }
 

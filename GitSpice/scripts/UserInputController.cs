@@ -14,12 +14,8 @@ public partial class UserInputController : Control
 
     private ElementDefinition PoleElementDef;
 
-    /// <summary>
-    /// Calculates position relative to moved ElementContainer (dragged by user)
-    /// </summary>
-    /// <param name="pos">Screen position</param>
-    /// <returns>Relative position</returns>
-    private Vector2 RelativePosition(Vector2 pos) => pos - Position;
+    //TODO: Make this configurable
+    private Vector2 ScaleMultiplier = new Vector2(0.1f, 0.1f);
 
     public override void _Ready()
     {
@@ -118,6 +114,23 @@ public partial class UserInputController : Control
                 GetViewport().SetInputAsHandled();
                 return;
             }
+
+            // Scale
+            if (mouseClicked.ButtonIndex == MouseButton.WheelUp && !mouseClicked.Pressed && !Element.IsCurrentlyMoving)
+            {
+                Scale += ScaleMultiplier;
+                Position -= RelativePosition(mouseClicked.Position) * ScaleMultiplier;
+                GetViewport().SetInputAsHandled();
+                return;
+            }
+            if (mouseClicked.ButtonIndex == MouseButton.WheelDown && !mouseClicked.Pressed && !Element.IsCurrentlyMoving)
+            {
+                Scale -= ScaleMultiplier;
+                Position += RelativePosition(mouseClicked.Position) * ScaleMultiplier;
+                GetViewport().SetInputAsHandled();
+                return;
+            }
+
             mouseDragging = false;
         }
 
@@ -222,19 +235,23 @@ public partial class UserInputController : Control
 
     public void MoveElement(Element element, InputEventMouseMotion e)
     {
-        Vector2 v = e.GlobalPosition - ElementContainerScene.Position;
-        v = SnapToGrid(v);
-        CircuitManager.Instance.MoveElement(element, v);
-        GetViewport().SetInputAsHandled();
+        CircuitManager.Instance.MoveElement(element, SnapToGrid(RelativePosition(e.GlobalPosition)));
     }
 
-    private static Vector2 SnapToGrid(Vector2 v)
+    private Vector2 SnapToGrid(Vector2 v)
     {
         //TODO: Make grid configurable
         v.X = Mathf.Round(v.X / 10f) * 10f;
         v.Y = Mathf.Round(v.Y / 10f) * 10f;
         return v;
     }
+
+    /// <summary>
+    /// Calculates position relative to moved ElementContainer (dragged by user)
+    /// </summary>
+    /// <param name="pos">Screen position</param>
+    /// <returns>Relative position</returns>
+    private Vector2 RelativePosition(Vector2 pos) => (pos - Position) / Scale;
 
     public void LoadCircuit()
     {
