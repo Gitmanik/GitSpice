@@ -30,18 +30,7 @@ namespace Gitmanik.Logging.Godot
                 Layout = "${date:format=HH\\:mm\\:ss} ${level:uppercase=true}\t${logger:long=True}: ${message} ${exception:format=message}"
             };
 
-            NLog.Loki.LokiTarget nlog_loki = new NLog.Loki.LokiTarget()
-            {
-                Endpoint = "https://logger.gitmanik.dev:3100",
-                OrderWrites = false,
-                Username = "gitspice",
-                Password = "0Vt7YelNav96FpK8SMz19GzM",
-                Layout = "${date:format=HH\\:mm\\:ss} ${level:uppercase=true}\t${logger:long=True}: ${message} ${exception:format=message}"
-            };
 
-            nlog_loki.Labels.Add(new NLog.Loki.LokiTargetLabel() { Name = "Gitcorp", Layout = "GitSpice" });
-
-            nlog_config.AddRule(LogLevel.Debug, LogLevel.Fatal, nlog_loki);
             nlog_config.AddRule(LogLevel.Debug, LogLevel.Fatal, NLogGodotTarget.GenerateTarget());
             nlog_config.AddRule(LogLevel.Debug, LogLevel.Fatal, nlog_logfile);
             nlog_config.AddRule(LogLevel.Info, LogLevel.Fatal, nlog_logconsole);

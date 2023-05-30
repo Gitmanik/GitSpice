@@ -230,7 +230,7 @@ public partial class CircuitManager : Node
     public string SaveCircuit()
     {
         Circuit.UserPosition = ElementContainerScene.Position.ToNumerics();
-        return Newtonsoft.Json.JsonConvert.SerializeObject(CircuitManager.Instance.Circuit);
+        return System.Text.Json.JsonSerializer.Serialize(Circuit, options: new System.Text.Json.JsonSerializerOptions() { IncludeFields = true });
     }
 
     /// <summary>
@@ -241,8 +241,7 @@ public partial class CircuitManager : Node
     {
         Logger.Debug($"Loading CircuitData:\n{circuitJsonText}");
 
-        var circuit = Newtonsoft.Json.JsonConvert.DeserializeObject<CircuitData>(circuitJsonText);
-        // var circuit = System.Text.Json.JsonSerializer.Deserialize<CircuitData>(circuitJsonText);
+        var circuit = System.Text.Json.JsonSerializer.Deserialize<CircuitData>(circuitJsonText, options: new System.Text.Json.JsonSerializerOptions() { IncludeFields = true });
 
         Toolbar.Instance.Reset();
         UserInputController.Instance.ResetConnecting();
