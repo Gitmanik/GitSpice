@@ -5,5 +5,8 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="NLog" Version="5.1.3" />
+        <Reference Include="ComputerAlgebra">
+      <HintPath>ComputerAlgebra.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>
