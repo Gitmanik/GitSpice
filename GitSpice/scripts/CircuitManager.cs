@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Godot;
+using Gitmanik.Utils.Extensions;
 
 public partial class CircuitManager : Node
 {
@@ -336,4 +337,31 @@ public partial class CircuitManager : Node
     /// <param name="type">Type of element</param>
     /// <returns>List of Elements with type</returns>
     public List<Element> FindElementsOfType(string type) => BoundElements.FindAll(x => x.Element.Data.Type == type).ConvertAll(x => x.Element);
+
+    public List<HashSet<string>> CalculateJunctions()
+    {
+        List<HashSet<string>> junctions = new List<HashSet<string>>();
+
+        foreach (var boundConn in CircuitManager.Instance.GetBoundConnections())
+        {
+            bool foundJunction = false;
+            Logger.Debug($"Parsing BoundConnection: {boundConn.Port1.Data.Id} {boundConn.Port2.Data.Id}");
+            foreach (var junction in junctions)
+            {
+                if (junction.Contains(boundConn.Port1.Data.Id) || junction.Contains(boundConn.Port2.Data.Id))
+                {
+                    Logger.Debug($"Adding to existing junction: {boundConn.Port1.Data.Id} {boundConn.Port2.Data.Id}");
+                    junction.Add(boundConn.Port1.Data.Id);
+                    junction.Add(boundConn.Port2.Data.Id);
+                    foundJunction = true;
+                }
+            }
+            if (!foundJunction)
+            {
+                Logger.Debug($"Created junction: {boundConn.Port1.Data.Id} {boundConn.Port2.Data.Id}");
+                junctions.Add(new HashSet<string>() { boundConn.Port1.Data.Id, boundConn.Port2.Data.Id });
+            }
+        }
+        return junctions;
+    }
 }

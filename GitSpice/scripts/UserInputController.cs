@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Gitmanik.Utils;
 using Godot;
 
 public partial class UserInputController : Control
@@ -34,7 +35,7 @@ public partial class UserInputController : Control
         {
             if (key.Keycode == Key.C)
             {
-                TestJunction();
+                ColorJunctions();
                 GetViewport().SetInputAsHandled();
                 return;
             }
@@ -140,52 +141,25 @@ public partial class UserInputController : Control
         }
     }
 
-    private void TestJunction()
+    private void ColorJunctions()
     {
-        Dictionary<Color, HashSet<string>> junctions = new Dictionary<Color, HashSet<string>>();
+        var junctions = CircuitManager.Instance.CalculateJunctions();
 
-        byte randomByte() => Convert.ToByte(GD.Randi() % 256);
-        Color randomColor() => Color.Color8(randomByte(), randomByte(), randomByte());
-
-        foreach (var boundConn in CircuitManager.Instance.GetBoundConnections())
+        foreach (var junction in junctions)
         {
-            bool foundJunction = false;
-            Logger.Debug($"Parsing BoundConnection: {boundConn.Port1.Data.Id} {boundConn.Port2.Data.Id}");
-            foreach (var junction in junctions)
-            {
-                if (junction.Value.Contains(boundConn.Port1.Data.Id) || junction.Value.Contains(boundConn.Port2.Data.Id))
-                {
-                    Logger.Debug($"Adding to existing junction: {boundConn.Port1.Data.Id} {boundConn.Port2.Data.Id}");
-                    junction.Value.Add(boundConn.Port1.Data.Id);
-                    junction.Value.Add(boundConn.Port2.Data.Id);
-                    foundJunction = true;
-                }
-            }
-            if (!foundJunction)
-            {
-                Logger.Debug($"Created junction: {boundConn.Port1.Data.Id} {boundConn.Port2.Data.Id}");
-                junctions.Add(randomColor(), new HashSet<string>() { boundConn.Port1.Data.Id, boundConn.Port2.Data.Id });
-            }
-        }
-
-        foreach (var kvp in junctions)
-        {
-            foreach (string port in kvp.Value)
+            Color junctionColor = GodotHelpers.RandomColor();
+            foreach (string port in junction)
             {
                 var conns = CircuitManager.Instance.FindBoundConnections(port);
 
                 foreach (var conn in conns)
                 {
-                    conn.Line.DefaultColor = kvp.Key;
+                    conn.Line.DefaultColor = junctionColor;
                 }
             }
         }
 
-
-        string debugJunctions = "";
-        foreach (var kvp in junctions)
-            debugJunctions += $"{kvp.Key}:\n{string.Join('\n', kvp.Value)}\n";
-        Logger.Debug($"Generated junctions:\n{debugJunctions}");
+        Logger.Debug($"Generated junctions:\n{string.Join('\n', junctions)}");
     }
 
     private Element CreateElement(ElementDefinition elementDef, Vector2 position)
