@@ -338,7 +338,11 @@ public partial class CircuitManager : Node
     /// <returns>List of Elements with type</returns>
     public List<Element> FindElementsOfType(string type) => BoundElements.FindAll(x => x.Element.Data.Type == type).ConvertAll(x => x.Element);
 
-    public List<HashSet<string>> CalculateJunctions()
+    /// <summary>
+    /// Calculates all nodes in Circuit
+    /// </summary>
+    /// <returns>List of HashMap of Port IDs in junction</returns>
+    public List<HashSet<string>> CalculateNodes()
     {
         List<HashSet<string>> junctions = new List<HashSet<string>>();
 
