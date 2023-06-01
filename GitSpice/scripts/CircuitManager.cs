@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using Gitmanik.Utils.Extensions;
+using System.Linq;
 
 public partial class CircuitManager : Node
 {
@@ -173,6 +174,14 @@ public partial class CircuitManager : Node
     public ConnectionData FindConnection(string Port1, string Port2) => Circuit.Connections.Find(x => x.IsConnected(Port1) && x.IsConnected(Port2));
 
     /// <summary>
+    /// Finds BoundConnection object between ports
+    /// </summary>
+    /// <param name="Port1">Port</param>
+    /// <param name="Port2">Port</param>
+    /// <returns>BoundConnection object</returns>
+    public BoundConnection FindBoundConnection(string Port1, string Port2) => BoundConnections.Find(x => (x.Data.IsConnected(Port1) && x.Data.IsConnected(Port2)));
+
+    /// <summary>
     /// Checks if Connection between ports exists.
     /// </summary>
     /// <param name="Port1">Port</param>
@@ -337,6 +346,12 @@ public partial class CircuitManager : Node
     public List<Element> FindElementsOfType(string type) => BoundElements.FindAll(x => x.Element.Data.Type == type).ConvertAll(x => x.Element);
 
     /// <summary>
+    /// Returns all Elements in BoundElements list
+    /// </summary>
+    /// <returns></returns>
+    public List<Element> GetElements() => BoundElements.ConvertAll(x => x.Element);
+
+    /// <summary>
     /// Calculates all nodes in Circuit
     /// </summary>
     /// <returns>List of HashMap of Port IDs in junction</returns>
@@ -365,5 +380,89 @@ public partial class CircuitManager : Node
             }
         }
         return junctions;
+    }
+
+    public List<string> CalculateLoop(string begin, string end)
+    {
+        Logger.Debug($"Calculating loop {begin} -> {end}");
+
+        if (Circuit.Elements.Count == 0)
+            return null;
+
+        Queue<string> queue = new Queue<string>();
+
+        HashSet<string> visited = new HashSet<string>();
+        Dictionary<string, string> predecessor = new Dictionary<string, string>();
+
+        queue.Enqueue(begin);
+        visited.Add(begin);
+
+        bool firstIteration = true;
+
+        int distanceCtr = 0;
+        while (queue.Count != 0)
+        {
+            var currentPort = queue.Dequeue();
+
+            Logger.Trace($"Visited {currentPort}");
+            if (currentPort == end)
+            {
+                Logger.Trace($"Found loop");
+                break;
+            }
+
+            ElementData currentElement = CircuitManager.Instance.FindElementPort(currentPort).ParentElement.Data;
+
+            var searchingPort = currentPort;
+            if (currentElement.Ports.Count > 1 && !firstIteration)
+            {
+                searchingPort = currentElement.Ports[0].Id == currentPort ? currentElement.Ports[1].Id : currentElement.Ports[0].Id;
+                Logger.Trace($"Setting searchingPort: {currentPort} -> {searchingPort}");
+                if (!visited.Contains(searchingPort))
+                {
+                    Logger.Trace($"Setting {searchingPort} as visited");
+                    predecessor.Add(searchingPort, currentPort);
+                    visited.Add(searchingPort);
+                }
+            }
+
+            firstIteration = false;
+
+            foreach (var p in CircuitManager.Instance.FindBoundConnections(searchingPort))
+            {
+                string newPort = searchingPort == p.Port1.Data.Id ? p.Port2.Data.Id : p.Port1.Data.Id;
+
+                Logger.Trace($"New port {currentPort} {searchingPort}: {newPort}");
+                if (visited.Contains(newPort))
+                    continue;
+
+                Logger.Trace($"Enqueueing: {newPort}");
+                predecessor.Add(newPort, searchingPort);
+                visited.Add(newPort);
+                queue.Enqueue(newPort);
+            }
+            distanceCtr++;
+        }
+
+        foreach (var kvp in predecessor)
+            Logger.Trace($"Predecessor of {kvp.Key}: {kvp.Value}");
+
+        List<string> path = new List<string>();
+
+        path.Add(end);
+        string curr = end;
+
+        while (predecessor.ContainsKey(curr))
+        {
+            Logger.Trace($"{curr} -> {predecessor[curr]}");
+            path.Add(predecessor[curr]);
+            curr = predecessor[curr];
+        }
+
+        path.Reverse();
+
+        Logger.Debug($"Loop {begin}->{end}: {string.Join(',', path)}");
+
+        return path;
     }
 }

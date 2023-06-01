@@ -1,3 +1,4 @@
+using Gitmanik.Utils;
 using Godot;
 using System;
 using System.Collections.Generic;
@@ -50,7 +51,36 @@ public partial class Element : Control
             Moving = !Moving;
             IsCurrentlyMoving = Moving;
             Logger.Debug($"Moving: {Name} {Moving}");
+
+            if (Data.Ports.Count == 2)
+            {
+                ColorLoop(Moving);
+            }
             GetViewport().SetInputAsHandled();
+        }
+    }
+
+    private void ColorLoop(bool reset)
+    {
+        Color c = reset ? Colors.White : GodotHelpers.RandomColor();
+        var loop = CircuitManager.Instance.CalculateLoop(Data.Ports[0].Id, Data.Ports[1].Id);
+        for (int idx = 0; idx < loop.Count - 1; idx++)
+        {
+            var port1 = loop[idx];
+            var port2 = loop[idx + 1];
+            Logger.Debug($"Ports: {port1} {port2}");
+            if (CircuitManager.Instance.GetElements().Any(e => e.Data.Ports.ConvertAll(p => p.Id).All(new List<string>() { port1, port2 }.Contains)))
+            {
+                Logger.Trace("Skipping element");
+                continue;
+            }
+            var boundConnection = CircuitManager.Instance.FindBoundConnection(port1, port2);
+            if (boundConnection == null)
+            {
+                Logger.Error($"Could not find bound connection for {port1} -> {port2}!");
+                continue;
+            }
+            boundConnection.Line.DefaultColor = c;
         }
     }
 

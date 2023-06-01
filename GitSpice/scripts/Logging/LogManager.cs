@@ -31,7 +31,7 @@ public partial class LogManager : Node
 
 
         nlog_config.AddRule(LogLevel.Debug, LogLevel.Fatal, NLogGodotTarget.GenerateTarget());
-        nlog_config.AddRule(LogLevel.Debug, LogLevel.Fatal, nlog_logfile);
+        nlog_config.AddRule(LogLevel.Trace, LogLevel.Fatal, nlog_logfile);
         nlog_config.AddRule(LogLevel.Info, LogLevel.Fatal, nlog_logconsole);
         NLog.LogManager.Configuration = nlog_config;
     }

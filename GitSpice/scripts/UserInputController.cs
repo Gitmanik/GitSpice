@@ -39,6 +39,15 @@ public partial class UserInputController : Control
                 GetViewport().SetInputAsHandled();
                 return;
             }
+            if (key.Keycode == Key.D)
+            {
+                foreach (Element e in CircuitManager.Instance.GetElements())
+                    if (e.Data.Ports.Count == 2)
+                        CircuitManager.Instance.CalculateLoop(e.Data.Ports[0].Id, e.Data.Ports[1].Id);
+
+                GetViewport().SetInputAsHandled();
+                return;
+            }
 
             if (key.Keycode == Key.Backspace)
             {
@@ -143,7 +152,7 @@ public partial class UserInputController : Control
 
     private void ColorJunctions()
     {
-        var junctions = CircuitManager.Instance.CalculateJunctions();
+        var junctions = CircuitManager.Instance.CalculateNodes();
 
         foreach (var junction in junctions)
         {
@@ -159,7 +168,7 @@ public partial class UserInputController : Control
             }
         }
 
-        Logger.Debug($"Generated junctions:\n{string.Join('\n', junctions)}");
+        Logger.Debug($"Generated junctions:\n{string.Join('\n', junctions.ConvertAll<string>(x => string.Join(',', x)))}");
     }
 
     private Element CreateElement(ElementDefinition elementDef, Vector2 position)
