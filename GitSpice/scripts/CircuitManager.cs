@@ -122,7 +122,7 @@ public partial class CircuitManager : Node
     /// </summary>
     /// <param name="data">Element data</param>
     /// <returns>Element object</returns>
-    public Element CreateElement(ElementData data)
+    public Element CreateElement(ElementData data, Vector2 position)
     {
         if (Circuit.Elements.Contains(data))
         {
@@ -135,9 +135,12 @@ public partial class CircuitManager : Node
         CreateBoundElement(data, elementScene);
 
         ElementContainerScene.AddChild(elementScene);
+        MoveElement(elementScene, position);
 
         return elementScene;
     }
+
+    public Element CreateElement(ElementDefinition elementDef, Vector2 position) => CreateElement(ElementProvider.Instance.NewElementData(elementDef), position);
 
     /// <summary>
     /// Makes a connection in CircuitData and its visual representation. 

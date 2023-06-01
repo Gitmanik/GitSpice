@@ -99,7 +99,7 @@ public partial class UserInputController : Control
                     return;
                 }
 
-                CreateElement(Toolbar.Instance.SelectedElement, RelativePosition(mouseClicked.Position));
+                CircuitManager.Instance.CreateElement(Toolbar.Instance.SelectedElement, RelativePosition(mouseClicked.Position));
 
                 GetViewport().SetInputAsHandled();
                 return;
@@ -108,7 +108,7 @@ public partial class UserInputController : Control
             // Create Pole
             if (ConnectingWire != null && mouseClicked.ButtonIndex == MouseButton.Left && !mouseClicked.Pressed)
             {
-                var createdPole = CreateElement(PoleElementDef, SnapToGrid(RelativePosition(mouseClicked.Position)));
+                var createdPole = CircuitManager.Instance.CreateElement(PoleElementDef, SnapToGrid(RelativePosition(mouseClicked.Position)));
 
                 ConnectingWireConnect(createdPole.Ports[0]);
                 StartConnecting(createdPole.Ports[0]);
@@ -144,7 +144,7 @@ public partial class UserInputController : Control
             mouseDragging = false;
         }
 
-        if (ConnectingWire != null && @event is InputEventMouseMotion mouseMoved)
+        if (ConnectingWire != null && ConnectingWire.IsInsideTree() && @event is InputEventMouseMotion mouseMoved)
         {
             ConnectingWire.Points = new Vector2[] { CurrentlyConnecting.Centroid, RelativePosition(mouseMoved.Position) };
         }
@@ -169,14 +169,6 @@ public partial class UserInputController : Control
         }
 
         Logger.Debug($"Generated junctions:\n{string.Join('\n', junctions.ConvertAll<string>(x => string.Join(',', x)))}");
-    }
-
-    private Element CreateElement(ElementDefinition elementDef, Vector2 position)
-    {
-        var elementData = ElementProvider.Instance.NewElementData(elementDef);
-        var elementScene = CircuitManager.Instance.CreateElement(elementData);
-        CircuitManager.Instance.MoveElement(elementScene, position);
-        return elementScene;
     }
 
     public void ResetConnecting()
