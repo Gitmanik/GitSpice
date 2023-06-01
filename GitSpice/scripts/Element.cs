@@ -5,7 +5,7 @@ using System.Linq;
 public partial class Element : Control
 {
     private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-    public ElementData Data;
+    public ElementData Data = null;
     public List<ElementPort> Ports;
 
     //TODO: Private set

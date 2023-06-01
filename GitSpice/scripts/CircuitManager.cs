@@ -242,13 +242,9 @@ public partial class CircuitManager : Node
     {
         Logger.Debug($"Loading CircuitData:\n{circuitJsonText}");
 
-        var circuit = System.Text.Json.JsonSerializer.Deserialize<CircuitData>(circuitJsonText, options: new System.Text.Json.JsonSerializerOptions() { IncludeFields = true });
-
         Toolbar.Instance.Reset();
         UserInputController.Instance.ResetConnecting();
         Element.IsCurrentlyMoving = false;
-
-        Circuit = circuit;
         BoundConnections.Clear();
         BoundElements.Clear();
 
@@ -256,6 +252,8 @@ public partial class CircuitManager : Node
         {
             child.QueueFree();
         }
+
+        Circuit = System.Text.Json.JsonSerializer.Deserialize<CircuitData>(circuitJsonText, options: new System.Text.Json.JsonSerializerOptions() { IncludeFields = true });
 
         ElementContainerScene.Position = Circuit.UserPosition.ToGodot();
 
