@@ -54,7 +54,7 @@ public partial class Element : Control
 
             if (Data.Ports.Count == 2)
             {
-                ColorLoop(Moving);
+                ColorLoop(!Moving);
             }
             GetViewport().SetInputAsHandled();
         }
@@ -69,7 +69,7 @@ public partial class Element : Control
             var port1 = loop[idx];
             var port2 = loop[idx + 1];
             Logger.Debug($"Ports: {port1} {port2}");
-            if (CircuitManager.Instance.GetElements().Any(e => e.Data.Ports.ConvertAll(p => p.Id).All(new List<string>() { port1, port2 }.Contains)))
+            if (CircuitManager.Instance.GetElements().Any(e => e.Data.Ports.ConvertAll(p => p.Id).SequenceEqual(new List<string>() { port1, port2 }) || e.Data.Ports.ConvertAll(p => p.Id).SequenceEqual(new List<string>() { port2, port1 })))
             {
                 Logger.Trace("Skipping element");
                 continue;

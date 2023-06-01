@@ -17,11 +17,11 @@ public partial class LogManager : Node
         NLog.Targets.FileTarget nlog_logfile = new NLog.Targets.FileTarget()
         {
             Layout = "${longdate}\t${level:uppercase=true}\t${logger}\t${message:withexception=true}",
-            FileName = "Logs/Logs.txt",
+            FileName = ProjectSettings.GlobalizePath("user://NLog/Logs.txt"),
             ArchiveEvery = NLog.Targets.FileArchivePeriod.Day,
             MaxArchiveDays = 30,
             ArchiveNumbering = NLog.Targets.ArchiveNumberingMode.Date,
-            ArchiveFileName = "Logs/Logs.{##}.txt",
+            ArchiveFileName = ProjectSettings.GlobalizePath("user://NLog/Logs.txt"),
         };
 
         NLog.Targets.ColoredConsoleTarget nlog_logconsole = new NLog.Targets.ColoredConsoleTarget()
