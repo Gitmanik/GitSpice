@@ -57,14 +57,19 @@ public partial class UserInputController : Control
             }
             if (key.Keycode == Key.S)
             {
-                SaveCircuit();
+                SaveFileDialog();
+                GetViewport().SetInputAsHandled();
+                return;
+            }
+            if (key.Keycode == Key.N)
+            {
+                CircuitManager.Instance.LoadCircuit(null);
                 GetViewport().SetInputAsHandled();
                 return;
             }
             if (key.Keycode == Key.L)
             {
-                ResetConnecting();
-                LoadCircuit();
+                OpenFileDialog();
                 GetViewport().SetInputAsHandled();
                 return;
             }
@@ -228,26 +233,42 @@ public partial class UserInputController : Control
     /// <returns>Relative position</returns>
     private Vector2 RelativePosition(Vector2 pos) => (pos - Position) / Scale;
 
-    public void LoadCircuit()
+
+    // TODO: Move to other node
+    public void OpenFileDialog()
     {
-        Logger.Info($"Loading circuit from {CircuitSavePath}");
-        var circuitFile = FileAccess.Open(CircuitSavePath, FileAccess.ModeFlags.Read);
+        Node dialoghelper = GetNode("/root/main/DialogHelper");
+        dialoghelper.Call("open_file_dialog");
+    }
+
+    // TODO: Move to other Node
+    //Called from DialogHelper.gd
+    void load_circuit(string circuitPath)
+    {
+        Logger.Info($"Loading circuit from {circuitPath}");
+        var circuitFile = FileAccess.Open(circuitPath, FileAccess.ModeFlags.Read);
         var circuitJsonText = circuitFile.GetAsText();
         circuitFile.Close();
 
         CircuitManager.Instance.LoadCircuit(circuitJsonText);
     }
 
-    public void SaveCircuit()
+    public void SaveFileDialog()
+    {
+        Node dialoghelper = GetNode("/root/main/DialogHelper");
+        dialoghelper.Call("save_file_dialog");
+    }
+
+    public void save_circuit(string savePath)
     {
         Logger.Info("Saving current Circuit state");
 
-        var circuitFile = FileAccess.Open(CircuitSavePath, FileAccess.ModeFlags.Write);
+        var circuitFile = FileAccess.Open(savePath, FileAccess.ModeFlags.Write);
         var circuitJsonText = CircuitManager.Instance.SaveCircuit();
 
         circuitFile.StoreString(circuitJsonText);
         circuitFile.Close();
 
-        Logger.Debug($"Saved CircuitData to file {CircuitSavePath}:\n{circuitJsonText}");
+        Logger.Debug($"Saved CircuitData to file {savePath}:\n{circuitJsonText}");
     }
 }

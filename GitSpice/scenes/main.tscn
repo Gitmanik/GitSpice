@@ -1,9 +1,13 @@
-[gd_scene load_steps=3 format=3 uid="uid://doo6foavt6nv7"]
+[gd_scene load_steps=4 format=3 uid="uid://oedwicsp7sgp"]
 
+[ext_resource type="Script" path="res://scripts/Utils/DialogHelper.gd" id="1_2dqek"]
 [ext_resource type="Script" path="res://scripts/UserInputController.cs" id="1_g8qvd"]
 [ext_resource type="PackedScene" uid="uid://laqgl8yctld3" path="res://scenes/toolbar.tscn" id="2_yctn3"]
 
 [node name="main" type="Node"]
+
+[node name="DialogHelper" type="Node" parent="."]
+script = ExtResource("1_2dqek")
 
 [node name="Toolbar" parent="." instance=ExtResource("2_yctn3")]
 offset_left = 170.0
