@@ -389,6 +389,12 @@ public partial class CircuitManager : Node
         return junctions;
     }
 
+    /// <summary>
+    /// Returns port Ids between beginning port and ending
+    /// </summary>
+    /// <param name="begin">Beginning port Id</param>
+    /// <param name="end">Ending port Id</param>
+    /// <returns></returns>
     public List<string> CalculateLoop(string begin, string end)
     {
         Logger.Debug($"Calculating loop {begin} -> {end}");
