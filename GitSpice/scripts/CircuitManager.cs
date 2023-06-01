@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using Gitmanik.Utils.Extensions;
-using System.Linq;
 
 public partial class CircuitManager : Node
 {
@@ -243,6 +242,7 @@ public partial class CircuitManager : Node
     public string SaveCircuit()
     {
         Circuit.UserPosition = ElementContainerScene.Position.ToNumerics();
+        Circuit.UserZoom = ElementContainerScene.Scale.X;
         return System.Text.Json.JsonSerializer.Serialize(Circuit, options: new System.Text.Json.JsonSerializerOptions() { IncludeFields = true });
     }
 
@@ -265,8 +265,12 @@ public partial class CircuitManager : Node
             child.QueueFree();
         }
 
-        Circuit = System.Text.Json.JsonSerializer.Deserialize<CircuitData>(circuitJsonText, options: new System.Text.Json.JsonSerializerOptions() { IncludeFields = true });
+        if (circuitJsonText == null)
+            Circuit = new CircuitData();
+        else
+            Circuit = System.Text.Json.JsonSerializer.Deserialize<CircuitData>(circuitJsonText, options: new System.Text.Json.JsonSerializerOptions() { IncludeFields = true });
 
+        ElementContainerScene.Scale = new Vector2(Circuit.UserZoom, Circuit.UserZoom);
         ElementContainerScene.Position = Circuit.UserPosition.ToGodot();
 
         foreach (var eldata in Circuit.Elements)

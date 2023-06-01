@@ -7,6 +7,7 @@ public class CircuitData
     public List<ElementData> Elements = new List<ElementData>();
     public List<ConnectionData> Connections = new List<ConnectionData>();
     public Vector2 UserPosition = Vector2.Zero;
+    public float UserZoom = 1f;
 }
 
 public class ConnectionData
