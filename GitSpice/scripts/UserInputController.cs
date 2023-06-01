@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Gitmanik.Math;
 using Gitmanik.Utils;
 using Godot;
 
@@ -19,11 +20,16 @@ public partial class UserInputController : Control
 
     private string circuitPath = null;
 
+    //TODO: Make this configurable
+    private const string PathToMaxima = @"C:\maxima-5.46.0\bin\maxima.bat";
+    public MaximaService Maxima;
+
     public override void _Ready()
     {
         ElementContainerScene = GetNode<Control>(CircuitManager.ElementContainerPath);
         PoleElementDef = ElementProvider.Instance.GetElementDefinition("Pole");
         Instance = this;
+        Maxima = new MaximaService(PathToMaxima);
     }
 
     bool mouseClickedBool = false;
