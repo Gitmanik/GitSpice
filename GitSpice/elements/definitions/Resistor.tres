@@ -6,10 +6,11 @@
 
 [resource]
 script = ExtResource("2_p2br0")
-Type = "Resistor"
 Scene = ExtResource("1_xswss")
 Data = {
 "Resistance": "10"
 }
 PortCount = 2
 ToolbarTexture = ExtResource("2_jqtln")
+ShowInToolbar = true
+AllowRotation = true

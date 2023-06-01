@@ -13,3 +13,5 @@ Data = {
 }
 PortCount = 2
 ToolbarTexture = ExtResource("2_r3m8m")
+ShowInToolbar = true
+AllowRotation = true

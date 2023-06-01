@@ -19,13 +19,14 @@ public partial class ElementProvider : Node
         {
             string path = $"{ElementPath}/{filename}";
             Logger.Debug($"Loading Element: {path}");
-            if (!filename.EndsWith(".tscn"))
+            if (!filename.EndsWith(".tres"))
             {
                 path = path.TrimSuffix(".remap");
                 Logger.Debug($".remap file found, trimming: {path}");
             }
 
             ElementDefinition elementDefinition = ResourceLoader.Load<ElementDefinition>(path);
+            elementDefinition.Type = filename.TrimSuffix(".remap").TrimSuffix(".tres");
             Elements.Add(elementDefinition.Type, elementDefinition);
         }
     }

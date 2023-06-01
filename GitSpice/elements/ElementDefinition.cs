@@ -3,7 +3,6 @@ using Godot.Collections;
 
 public partial class ElementDefinition : Resource
 {
-    [Export]
     public string Type;
 
     [Export]
