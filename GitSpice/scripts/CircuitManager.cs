@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using Gitmanik.Utils.Extensions;
+using System.Linq;
 
 public partial class CircuitManager : Node
 {
@@ -477,5 +478,67 @@ public partial class CircuitManager : Node
         Logger.Debug($"Loop {begin}->{end}: {string.Join(',', path)}");
 
         return path;
+    }
+
+    public void ColorLoop(List<string> loop, Color c)
+    {
+        for (int idx = 0; idx < loop.Count - 1; idx++)
+        {
+            var port1 = loop[idx];
+            var port2 = loop[idx + 1];
+            Logger.Trace($"Ports: {port1} {port2}");
+            if (GetElements().Any(e => e.Data.Ports.ConvertAll(p => p.Id).SequenceEqual(new List<string>() { port1, port2 }) || e.Data.Ports.ConvertAll(p => p.Id).SequenceEqual(new List<string>() { port2, port1 })))
+            {
+                Logger.Trace("Skipping element");
+                continue;
+            }
+            var boundConnection = FindBoundConnection(port1, port2);
+            if (boundConnection == null)
+            {
+                Logger.Error($"Could not find bound connection for {port1} -> {port2}!");
+                continue;
+            }
+            boundConnection.Line.DefaultColor = c;
+        }
+    }
+
+    public string Calculate2ndKirchoffLaw(List<string> loop)
+    {
+        List<string> voltages = new List<string>();
+        string equation = "";
+        loop.Insert(0, loop[loop.Count - 1]);
+        for (int idx = 0; idx < loop.Count - 1; idx++)
+        {
+            var port1 = loop[idx];
+            var port2 = loop[idx + 1];
+            Logger.Debug($"Ports: {port1} {port2}");
+            Element e = CircuitManager.Instance.GetElements().Find(e => e.Data.Ports.ConvertAll(p => p.Id).SequenceEqual(new List<string>() { port1, port2 }) || e.Data.Ports.ConvertAll(p => p.Id).SequenceEqual(new List<string>() { port2, port1 }));
+            if (e == null)
+            {
+                Logger.Trace("Skipping non-element");
+                continue;
+            }
+            string sign = "+";
+            if (e.Ports[0].Data.Id != port1)
+                sign = "-";
+            string eq_part = $" {sign} {e.GetVoltage()}";
+            if (e.Data.Type == "Resistor")
+                voltages.Add(e.GetVoltageSymbol());
+            Logger.Debug($"eq_part for {e.Data.Id}: {eq_part}");
+            equation += eq_part;
+
+        }
+
+        Logger.Debug($"Calculated 2nd law for loop: {equation}");
+        return equation;
+    }
+
+    public string SolveLinearSystem(List<string> equations, Element solveFor)
+    {
+        string command = $"ev({solveFor.GetVoltageSymbol()},linsolve([{string.Join(", ", equations)}], [{solveFor.GetVoltageSymbol()}]));";
+
+        Logger.Debug($"Maxima command: {command}");
+
+        return UserInputController.Instance.Maxima.Evaluate(command);
     }
 }
