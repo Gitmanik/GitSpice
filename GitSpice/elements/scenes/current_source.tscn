@@ -28,20 +28,20 @@ anchor_bottom = 0.5
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Port2" type="Button" parent="Ports"]
-layout_mode = 0
-offset_left = 21.0
-offset_top = -8.0
-offset_right = 37.0
-offset_bottom = 8.0
-action_mode = 0
-script = ExtResource("3_xdxgx")
-
 [node name="Port1" type="Button" parent="Ports"]
 layout_mode = 0
 offset_left = -37.0
 offset_top = -8.0
 offset_right = -21.0
+offset_bottom = 8.0
+action_mode = 0
+script = ExtResource("3_xdxgx")
+
+[node name="Port2" type="Button" parent="Ports"]
+layout_mode = 0
+offset_left = 21.0
+offset_top = -8.0
+offset_right = 37.0
 offset_bottom = 8.0
 action_mode = 0
 script = ExtResource("3_xdxgx")

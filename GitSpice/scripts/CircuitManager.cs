@@ -509,8 +509,8 @@ public partial class CircuitManager : Node
         loop.Insert(0, loop[loop.Count - 1]);
         for (int idx = 0; idx < loop.Count - 1; idx++)
         {
-            var port1 = loop[idx];
-            var port2 = loop[idx + 1];
+            var port1 = loop[idx + 1];
+            var port2 = loop[idx];
             Logger.Debug($"Ports: {port1} {port2}");
             Element e = CircuitManager.Instance.GetElements().Find(e => e.Data.Ports.ConvertAll(p => p.Id).SequenceEqual(new List<string>() { port1, port2 }) || e.Data.Ports.ConvertAll(p => p.Id).SequenceEqual(new List<string>() { port2, port1 }));
             if (e == null)
@@ -519,6 +519,7 @@ public partial class CircuitManager : Node
                 continue;
             }
             string sign = "+";
+            Logger.Info($"e {e.Ports[0].Data.Id} {e.Ports[1].Data.Id} {port1} {port2}");
             if (e.Ports[0].Data.Id != port1)
                 sign = "-";
             string eq_part = $" {sign} {e.GetVoltage()}";
