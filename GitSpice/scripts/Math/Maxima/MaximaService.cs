@@ -8,8 +8,8 @@ public class MaximaService
 {
     private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     private Process MaximaProcess = null;
-
     private string PathToMaxima;
+
     public MaximaService(string pathToMaxima)
     {
         Logger.Info("Creating MaximaService");
@@ -44,7 +44,7 @@ public class MaximaService
 
         //grind() trims output and prints $ at the end of result
         expr = $"grind({expr});";
-        Logger.Info($"Writing {expr} to Maxima");
+        Logger.Debug($"Writing {expr} to Maxima");
         MaximaProcess.StandardInput.WriteLine(expr);
 
         var result = "";

@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using Gitmanik.Controllers;
 using Gitmanik.Math;
 using Gitmanik.Utils;
 using Godot;
@@ -30,6 +32,17 @@ public partial class UserInputController : Control
         PoleElementDef = ElementProvider.Instance.GetElementDefinition("Pole");
         Instance = this;
         Maxima = new MaximaService(PathToMaxima);
+        GetTree().AutoAcceptQuit = false;
+        GetTree().QuitOnGoBack = false;
+    }
+
+    public override void _Notification(int what)
+    {
+        if (what != NotificationWMCloseRequest && what != NotificationWMGoBackRequest)
+            return;
+
+        SettingsController.Save();
+        GetTree().Quit();
     }
 
     bool mouseClickedBool = false;
@@ -243,12 +256,18 @@ public partial class UserInputController : Control
     /// <returns>Relative position</returns>
     private Vector2 RelativePosition(Vector2 pos) => (pos - Position) / Scale;
 
-
     // TODO: Move to other node
     public void OpenFileDialog()
     {
         Node dialoghelper = GetNode("/root/main/DialogHelper");
-        dialoghelper.Call("open_file_dialog");
+        dialoghelper.Call("open_file_dialog", SettingsController.Data.LastDialog);
+    }
+
+    // TODO: Move to other Node
+    public void SaveFileDialog()
+    {
+        Node dialoghelper = GetNode("/root/main/DialogHelper");
+        dialoghelper.Call("save_file_dialog", SettingsController.Data.LastDialog);
     }
 
     // TODO: Move to other Node
@@ -257,20 +276,15 @@ public partial class UserInputController : Control
     {
         Logger.Info($"Loading circuit from {loadPath}");
 
+        SettingsController.Data.LastDialog = Path.GetDirectoryName(loadPath);
+
         circuitPath = loadPath;
 
-        var circuitFile = FileAccess.Open(loadPath, FileAccess.ModeFlags.Read);
+        var circuitFile = Godot.FileAccess.Open(loadPath, Godot.FileAccess.ModeFlags.Read);
         var circuitJsonText = circuitFile.GetAsText();
         circuitFile.Close();
 
         CircuitManager.Instance.LoadCircuit(circuitJsonText);
-    }
-
-    // TODO: Move to other Node
-    public void SaveFileDialog()
-    {
-        Node dialoghelper = GetNode("/root/main/DialogHelper");
-        dialoghelper.Call("save_file_dialog");
     }
 
     // TODO: Move to other Node
@@ -280,8 +294,9 @@ public partial class UserInputController : Control
         Logger.Info("Saving current Circuit state");
 
         circuitPath = savePath;
+        SettingsController.Data.LastDialog = Path.GetDirectoryName(savePath);
 
-        var circuitFile = FileAccess.Open(savePath, FileAccess.ModeFlags.Write);
+        var circuitFile = Godot.FileAccess.Open(savePath, Godot.FileAccess.ModeFlags.Write);
         var circuitJsonText = CircuitManager.Instance.SaveCircuit();
 
         circuitFile.StoreString(circuitJsonText);
