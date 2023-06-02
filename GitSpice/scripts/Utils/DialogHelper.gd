@@ -10,8 +10,8 @@ var uic = get_node("/root/main/ElementContainer")
 func open_file_dialog():
 	file_dialog = NativeFileDialog.new()
 	file_dialog.title = "Open Circuit"
-	file_dialog.file_mode = 0
-	file_dialog.access = 2
+	file_dialog.file_mode = NativeFileDialog.FILE_MODE_OPEN_FILE
+	file_dialog.access = NativeFileDialog.ACCESS_FILESYSTEM
 	file_dialog.root_subfolder = last_directory
 	file_dialog.connect("file_selected", on_file_open_selected)
 	file_dialog.connect("canceled", on_canceled)
@@ -22,8 +22,8 @@ func open_file_dialog():
 func save_file_dialog():
 	file_dialog = NativeFileDialog.new()
 	file_dialog.title = "Save Circuit"
-	file_dialog.file_mode = 0
-	file_dialog.access = 2
+	file_dialog.file_mode = NativeFileDialog.FILE_MODE_OPEN_FILE
+	file_dialog.access = NativeFileDialog.ACCESS_FILESYSTEM
 	file_dialog.root_subfolder = last_directory
 	file_dialog.connect("file_selected", on_file_save_selected)
 	file_dialog.connect("canceled", on_canceled)
