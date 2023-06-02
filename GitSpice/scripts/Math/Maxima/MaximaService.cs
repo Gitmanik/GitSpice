@@ -51,14 +51,18 @@ public class MaximaService
         while (!result.EndsWith('$'))
         {
             result += MaximaProcess.StandardOutput.ReadLine();
+
+            if (result.Contains("incorrect"))
+            {
+                result += MaximaProcess.StandardOutput.ReadLine();
+                result += MaximaProcess.StandardOutput.ReadLine();
+                Logger.Error($"Maxima error!\n{result}");
+                throw new Exception($"Maxima Error: {result}");
+            }
         }
         Logger.Info(result);
         MaximaProcess.StandardOutput.ReadLine(); //Removes 'done'
 
-        if (result.EndsWith("$")) return result.TrimEnd('$');
-
-        MaximaProcess = SpawnMaxima();
-        throw new Exception($"Maxima error: {result}");
+        return result.TrimEnd('$');
     }
-
 }
