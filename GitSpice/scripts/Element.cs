@@ -63,17 +63,17 @@ public partial class Element : Control
                 CircuitManager.Instance.ColorLoop(loop, Moving ? GodotHelpers.RandomColor() : Colors.White);
 
                 //TODO: Remove me
-                if (!Moving && Data.Type == "Resistor")
+                if (Moving)
                 {
                     string eq = CircuitManager.Instance.Calculate2ndKirchoffLaw(loop);
                     string res = CircuitManager.Instance.SolveLinearSystem(new List<string>() { eq }, this);
                     Logger.Info(res);
                     infoPanelText += $"[b]2nd Kirchoff:[/b] {eq}\n";
                     infoPanelText += $"[b]Voltage value:[/b] {res}\n";
+                    infoPanelText += string.Join('\n', Data.Data.ToList().ConvertAll(x => $"[b]{x.Key}:[/b] {x.Value}"));
                 }
             }
 
-            infoPanelText += string.Join('\n', Data.Data.ToList().ConvertAll(x => $"[b]{x.Key}:[/b] {x.Value}"));
             UserInputController.Instance.InfoPanel.Text = infoPanelText;
 
             GetViewport().SetInputAsHandled();
@@ -150,5 +150,4 @@ public partial class Element : Control
         }
 
     }
-
 }
