@@ -14,16 +14,10 @@ public partial class UserInputController : Control
     private ElementPort CurrentlyConnecting;
     private Line2D ConnectingWire;
     private Control ElementContainerScene;
+    public RichTextLabel InfoPanel;
 
     private ElementDefinition PoleElementDef;
-
-    //TODO: Make this configurable
-    private Vector2 ScaleMultiplier = new Vector2(0.1f, 0.1f);
-
     private string circuitPath = null;
-
-    //TODO: Make this configurable
-    private const string PathToMaxima = @"C:\maxima-5.46.0\bin\maxima.bat";
     public MaximaService Maxima;
 
     public override void _Ready()
@@ -31,7 +25,8 @@ public partial class UserInputController : Control
         ElementContainerScene = GetNode<Control>(CircuitManager.ElementContainerPath);
         PoleElementDef = ElementProvider.Instance.GetElementDefinition("Pole");
         Instance = this;
-        Maxima = new MaximaService(PathToMaxima);
+        Maxima = new MaximaService(SettingsController.Instance.Data.PathToMaxima);
+        InfoPanel = GetNode<RichTextLabel>("/root/main/InfoPanel/RichTextLabel");
     }
 
     public override void _Notification(int what)
@@ -153,15 +148,15 @@ public partial class UserInputController : Control
             // Scale
             if (mouseClicked.ButtonIndex == MouseButton.WheelUp && !mouseClicked.Pressed && !Element.IsCurrentlyMoving)
             {
-                Scale += ScaleMultiplier;
-                Position -= RelativePosition(mouseClicked.Position) * ScaleMultiplier;
+                Scale += Vector2.One * SettingsController.Instance.Data.ZoomMultiplier;
+                Position -= RelativePosition(mouseClicked.Position) * SettingsController.Instance.Data.ZoomMultiplier;
                 GetViewport().SetInputAsHandled();
                 return;
             }
             if (mouseClicked.ButtonIndex == MouseButton.WheelDown && !mouseClicked.Pressed && !Element.IsCurrentlyMoving)
             {
-                Scale -= ScaleMultiplier;
-                Position += RelativePosition(mouseClicked.Position) * ScaleMultiplier;
+                Scale -= Vector2.One * SettingsController.Instance.Data.ZoomMultiplier;
+                Position += RelativePosition(mouseClicked.Position) * SettingsController.Instance.Data.ZoomMultiplier;
                 GetViewport().SetInputAsHandled();
                 return;
             }

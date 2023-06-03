@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Godot;
 using Gitmanik.Utils.Extensions;
 using System.Linq;
+using Gitmanik.Models;
 
 public partial class CircuitManager : Node
 {
@@ -511,23 +512,25 @@ public partial class CircuitManager : Node
         {
             var port1 = loop[idx + 1];
             var port2 = loop[idx];
-            Logger.Debug($"Ports: {port1} {port2}");
+            Logger.Trace($"Ports: {port1} {port2}");
+
             Element e = CircuitManager.Instance.GetElements().Find(e => e.Data.Ports.ConvertAll(p => p.Id).SequenceEqual(new List<string>() { port1, port2 }) || e.Data.Ports.ConvertAll(p => p.Id).SequenceEqual(new List<string>() { port2, port1 }));
             if (e == null)
             {
                 Logger.Trace("Skipping non-element");
                 continue;
             }
+            Logger.Trace($"Element ports: {e.Ports[0].Data.Id} {e.Ports[1].Data.Id}, ports: {port1} {port2}");
+
             string sign = "+";
-            Logger.Info($"e {e.Ports[0].Data.Id} {e.Ports[1].Data.Id} {port1} {port2}");
-            if (e.Ports[0].Data.Id != port1)
+            if (e.Ports[0].Data.Id != port1) // TODO: Make more sophisticated signing
                 sign = "-";
+
             string eq_part = $" {sign} {e.GetVoltage()}";
             if (e.Data.Type == "Resistor")
                 voltages.Add(e.GetVoltageSymbol());
-            Logger.Debug($"eq_part for {e.Data.Id}: {eq_part}");
+            Logger.Debug($"Equation part for {e.Data.Id}: {eq_part}");
             equation += eq_part;
-
         }
 
         Logger.Debug($"Calculated 2nd law for loop: {equation}");

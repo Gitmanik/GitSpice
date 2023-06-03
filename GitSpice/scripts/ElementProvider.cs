@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Gitmanik.Models;
 using Godot;
 
 public partial class ElementProvider : Node
@@ -50,7 +51,6 @@ public partial class ElementProvider : Node
         for (int ctr = 0; ctr < elementDef.PortCount; ctr++)
             elementData.Ports.Add(new PortData());
 
-        //TODO: Cache
         foreach (KeyValuePair<string, string> godotKVP in elementDef.Data)
             elementData.Data.Add(godotKVP.Key, godotKVP.Value);
 

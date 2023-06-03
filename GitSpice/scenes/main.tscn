@@ -1,19 +1,45 @@
-[gd_scene load_steps=4 format=3 uid="uid://dp0kfh0uc3j6e"]
+[gd_scene load_steps=6 format=3 uid="uid://dp0kfh0uc3j6e"]
 
 [ext_resource type="Script" path="res://scripts/Utils/DialogHelper.gd" id="1_2dqek"]
 [ext_resource type="PackedScene" uid="uid://laqgl8yctld3" path="res://scenes/toolbar.tscn" id="2_yctn3"]
 [ext_resource type="Script" path="res://scripts/Controllers/UserInputController.cs" id="3_eug88"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jd5sw"]
+bg_color = Color(0.356863, 0.368627, 0.286275, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tc6hh"]
+bg_color = Color(0.623529, 0.568627, 0.733333, 0.368627)
+
 [node name="main" type="Node"]
 
-[node name="DialogHelper" type="Node" parent="."]
-script = ExtResource("1_2dqek")
+[node name="Background" type="Panel" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxFlat_jd5sw")
 
-[node name="Toolbar" parent="." instance=ExtResource("2_yctn3")]
-offset_left = 170.0
-offset_top = -55.0
-offset_right = -170.0
-offset_bottom = -5.0
+[node name="InfoPanel" type="Panel" parent="."]
+offset_left = 960.0
+offset_right = 1152.0
+offset_bottom = 128.0
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxFlat_tc6hh")
+
+[node name="RichTextLabel" type="RichTextLabel" parent="InfoPanel"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 184.0
+offset_bottom = 120.0
+theme_override_font_sizes/normal_font_size = 12
+theme_override_font_sizes/bold_font_size = 12
+theme_override_font_sizes/italics_font_size = 12
+theme_override_font_sizes/bold_italics_font_size = 12
+theme_override_font_sizes/mono_font_size = 12
+bbcode_enabled = true
 
 [node name="ElementContainer" type="Control" parent="."]
 layout_mode = 3
@@ -24,3 +50,12 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("3_eug88")
+
+[node name="DialogHelper" type="Node" parent="."]
+script = ExtResource("1_2dqek")
+
+[node name="Toolbar" parent="." instance=ExtResource("2_yctn3")]
+offset_left = 170.0
+offset_top = -55.0
+offset_right = -170.0
+offset_bottom = -5.0

@@ -1,3 +1,5 @@
+using Gitmanik.Models;
+using Gitmanik.Controllers;
 using Godot;
 
 public partial class ElementPort : Button
@@ -22,8 +24,8 @@ public partial class ElementPort : Button
 
     public override void _Draw()
     {
-        // TODO: This should be togglable in config
-        DrawString(ThemeDB.FallbackFont, Vector2.Zero, Data.Id, HorizontalAlignment.Center);
+        if (SettingsController.Instance.Data.DebugDrawIds)
+            DrawString(ThemeDB.FallbackFont, Vector2.Zero, Data.Id, HorizontalAlignment.Center);
     }
 
     public override void _Pressed()

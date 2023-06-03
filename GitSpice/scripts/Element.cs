@@ -1,3 +1,5 @@
+using Gitmanik.Models;
+using Gitmanik.Controllers;
 using Gitmanik.Utils;
 using Godot;
 using System;
@@ -9,16 +11,16 @@ public partial class Element : Control
     public ElementData Data = null;
     public List<ElementPort> Ports;
 
-    //TODO: Private set
-    public bool Moving = false;
+    /// <summary>
+    /// True if this element is currently moving
+    /// </summary>
+    /// <value></value>
+    public bool Moving;
 
     /// <summary>
     /// Indicates whether any Element is moving
     /// </summary>
     public static bool IsCurrentlyMoving = false;
-
-    // TODO: Expose as configurable variable
-    private const float RotationAmount = 2 * Mathf.Pi / 8f;
 
     public override void _Ready()
     {
@@ -40,8 +42,8 @@ public partial class Element : Control
 
     public override void _Draw()
     {
-        // TODO: This should be togglable in config
-        DrawString(ThemeDB.FallbackFont, Vector2.Zero, Data.Id, HorizontalAlignment.Center);
+        if (SettingsController.Instance.Data.DebugDrawIds)
+            DrawString(ThemeDB.FallbackFont, Vector2.Zero, Data.Id, HorizontalAlignment.Center);
     }
 
     public void _TextureRectGuiInput(InputEvent @event)
@@ -51,6 +53,8 @@ public partial class Element : Control
             Moving = !Moving;
             IsCurrentlyMoving = Moving;
             Logger.Debug($"Moving: {Name} {Moving}");
+
+            string infoPanelText = "";
 
             if (Data.Ports.Count == 2)
             {
@@ -64,9 +68,13 @@ public partial class Element : Control
                     string eq = CircuitManager.Instance.Calculate2ndKirchoffLaw(loop);
                     string res = CircuitManager.Instance.SolveLinearSystem(new List<string>() { eq }, this);
                     Logger.Info(res);
+                    infoPanelText += $"[b]2nd Kirchoff:[/b] {eq}\n";
+                    infoPanelText += $"[b]Voltage value:[/b] {res}\n";
                 }
             }
 
+            infoPanelText += string.Join('\n', Data.Data.ToList().ConvertAll(x => $"[b]{x.Key}:[/b] {x.Value}"));
+            UserInputController.Instance.InfoPanel.Text = infoPanelText;
 
             GetViewport().SetInputAsHandled();
         }
@@ -94,13 +102,13 @@ public partial class Element : Control
             {
                 if (mouseButton.ButtonIndex == MouseButton.WheelUp)
                 {
-                    CircuitManager.Instance.RotateElement(this, Rotation + RotationAmount);
+                    CircuitManager.Instance.RotateElement(this, Rotation + SettingsController.Instance.Data.ElementRotationAmount);
                     GetViewport().SetInputAsHandled();
                     return;
                 }
                 if (mouseButton.ButtonIndex == MouseButton.WheelDown)
                 {
-                    CircuitManager.Instance.RotateElement(this, Rotation - RotationAmount);
+                    CircuitManager.Instance.RotateElement(this, Rotation - SettingsController.Instance.Data.ElementRotationAmount);
                     GetViewport().SetInputAsHandled();
                     return;
                 }

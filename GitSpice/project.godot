@@ -14,7 +14,7 @@ config/name="GitSpice"
 run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.0", "C#", "GL Compatibility")
 run/low_processor_mode=true
-boot_splash/bg_color=Color(0.141176, 0.141176, 0.141176, 1)
+boot_splash/bg_color=Color(0.356863, 0.368627, 0.286275, 1)
 boot_splash/show_image=false
 
 [autoload]

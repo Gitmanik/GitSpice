@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Numerics;
 
+namespace Gitmanik.Models;
+
 public class CircuitData
 {
     public int ID_ctr;

@@ -1,17 +1,13 @@
 using System;
 using System.IO;
 using System.Text.Json;
+using Gitmanik.Models;
 using Godot;
 
 namespace Gitmanik.Controllers;
 
 public partial class SettingsController : Node
 {
-    public class Settings
-    {
-        public string LastDialog = Path.GetDirectoryName(Godot.OS.GetExecutablePath());
-    }
-
     private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
     public Settings Data;
