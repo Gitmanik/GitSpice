@@ -22,9 +22,12 @@ mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_jd5sw")
 
 [node name="InfoPanel" type="Panel" parent="."]
-offset_left = 960.0
-offset_right = 1152.0
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -192.0
 offset_bottom = 128.0
+grow_horizontal = 0
 mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_tc6hh")
 
