@@ -22,6 +22,7 @@ boot_splash/show_image=false
 LogManager="*res://scripts/Logging/LogManager.cs"
 ElementProvider="*res://scripts/ElementProvider.cs"
 CircuitManager="*res://scripts/CircuitManager.cs"
+SettingsController="*res://scripts/Controllers/SettingsController.cs"
 
 [dotnet]
 

@@ -32,8 +32,6 @@ public partial class UserInputController : Control
         PoleElementDef = ElementProvider.Instance.GetElementDefinition("Pole");
         Instance = this;
         Maxima = new MaximaService(PathToMaxima);
-        GetTree().AutoAcceptQuit = false;
-        GetTree().QuitOnGoBack = false;
     }
 
     public override void _Notification(int what)
@@ -41,7 +39,6 @@ public partial class UserInputController : Control
         if (what != NotificationWMCloseRequest && what != NotificationWMGoBackRequest)
             return;
 
-        SettingsController.Save();
         GetTree().Quit();
     }
 
@@ -260,14 +257,14 @@ public partial class UserInputController : Control
     public void OpenFileDialog()
     {
         Node dialoghelper = GetNode("/root/main/DialogHelper");
-        dialoghelper.Call("open_file_dialog", SettingsController.Data.LastDialog);
+        dialoghelper.Call("open_file_dialog", SettingsController.Instance.Data.LastDialog);
     }
 
     // TODO: Move to other Node
     public void SaveFileDialog()
     {
         Node dialoghelper = GetNode("/root/main/DialogHelper");
-        dialoghelper.Call("save_file_dialog", SettingsController.Data.LastDialog);
+        dialoghelper.Call("save_file_dialog", SettingsController.Instance.Data.LastDialog);
     }
 
     // TODO: Move to other Node
@@ -276,7 +273,7 @@ public partial class UserInputController : Control
     {
         Logger.Info($"Loading circuit from {loadPath}");
 
-        SettingsController.Data.LastDialog = Path.GetDirectoryName(loadPath);
+        SettingsController.Instance.Data.LastDialog = Path.GetDirectoryName(loadPath);
 
         circuitPath = loadPath;
 
@@ -294,7 +291,7 @@ public partial class UserInputController : Control
         Logger.Info("Saving current Circuit state");
 
         circuitPath = savePath;
-        SettingsController.Data.LastDialog = Path.GetDirectoryName(savePath);
+        SettingsController.Instance.Data.LastDialog = Path.GetDirectoryName(savePath);
 
         var circuitFile = Godot.FileAccess.Open(savePath, Godot.FileAccess.ModeFlags.Write);
         var circuitJsonText = CircuitManager.Instance.SaveCircuit();
