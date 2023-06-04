@@ -65,10 +65,17 @@ public partial class Element : Control
                 //TODO: Remove me
                 if (Moving)
                 {
-                    string eq = CircuitManager.Instance.Calculate2ndKirchoffLaw(loop);
-                    string res = CircuitManager.Instance.SolveLinearSystem(new List<string>() { eq }, this);
+                    string secondKirchhoff = CircuitManager.Instance.Calculate2ndKirchhoffLaw(loop);
+
+                    var givens = CircuitManager.Instance.GetAllGivens(loop);
+                    var givens_eq = new List<string>();
+                    foreach (var kvp in givens)
+                        givens_eq.Add($"{kvp.Key}={kvp.Value}");
+                    givens_eq.Add(secondKirchhoff);
+
+                    string res = CircuitManager.Instance.SolveLinearSystem(givens_eq, this);
                     Logger.Info(res);
-                    infoPanelText += $"[b]2nd Kirchoff:[/b] {eq}\n";
+                    infoPanelText += $"[b]2nd Kirchoff:[/b] {secondKirchhoff}\n";
                     infoPanelText += $"[b]Voltage value:[/b] {res}\n";
                     infoPanelText += string.Join('\n', Data.Data.ToList().ConvertAll(x => $"[b]{x.Key}:[/b] {x.Value}"));
                 }
@@ -114,40 +121,5 @@ public partial class Element : Control
                 }
             }
         }
-    }
-
-    public string GetVoltageSymbol()
-    {
-        switch (Data.Type)
-        {
-            case "Voltage_Source":
-                return "";
-            case "Resistor":
-                return $"Ur{Data.Id}";
-            case "Pole":
-                return "";
-            case "Current_Source":
-                return "";
-            default:
-                throw new NotImplementedException();
-        }
-    }
-
-    public string GetVoltage()
-    {
-        switch (Data.Type)
-        {
-            case "Voltage_Source":
-                return Data.Data["Amount"];
-            case "Resistor":
-                return GetVoltageSymbol();
-            case "Pole":
-                return "0";
-            case "Current_Source":
-                return "0";
-            default:
-                throw new NotImplementedException();
-        }
-
     }
 }

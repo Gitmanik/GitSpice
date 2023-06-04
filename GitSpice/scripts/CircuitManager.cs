@@ -526,9 +526,9 @@ public partial class CircuitManager : Node
             if (e.Ports[0].PortId != port1) // TODO: Make more sophisticated signing
                 sign = "-";
 
-            string eq_part = $" {sign} {e.GetVoltage()}";
+            string eq_part = $" {sign} {e.Data.GetVoltage()}";
             if (e.Data.Type == "Resistor")
-                voltages.Add(e.GetVoltageSymbol());
+                voltages.Add(e.Data.GetVoltage());
             Logger.Debug($"Equation part for {e.Data.Id}: {eq_part}");
             equation += eq_part;
         }
@@ -536,10 +536,34 @@ public partial class CircuitManager : Node
         Logger.Debug($"Calculated 2nd law for loop: {equation}");
         return equation;
     }
+    public Dictionary<string, string> GetAllGivens(List<string> loop)
+    {
+        loop.Insert(0, loop[loop.Count - 1]);
+        var all = new Dictionary<string, string>();
+        for (int idx = 0; idx < loop.Count - 1; idx++)
+        {
+            var port1 = loop[idx + 1];
+            var port2 = loop[idx];
+            Logger.Trace($"Ports: {port1} {port2}");
+
+            Element e = CircuitManager.Instance.GetElements().Find(e => e.Data.Ports.SequenceEqual(new List<string>() { port1, port2 }) || e.Data.Ports.SequenceEqual(new List<string>() { port2, port1 }));
+            if (e == null)
+            {
+                Logger.Trace("Skipping non-element");
+                continue;
+            }
+            Logger.Trace($"Element ports: {e.Ports[0].PortId} {e.Ports[1].PortId}, ports: {port1} {port2}");
+
+            foreach (var kvp in e.Data.GetAllGivens())
+                all.Add(kvp.Key, kvp.Value);
+        }
+
+        return all;
+    }
 
     public string SolveLinearSystem(List<string> equations, Element solveFor)
     {
-        string command = $"ev({solveFor.GetVoltageSymbol()},linsolve([{string.Join(", ", equations)}], [{solveFor.GetVoltageSymbol()}]));";
+        string command = $"ev({solveFor.Data.GetVoltage()},linsolve([{string.Join(", ", equations)}], [{solveFor.Data.GetVoltage()}]));";
 
         Logger.Debug($"Maxima command: {command}");
 
