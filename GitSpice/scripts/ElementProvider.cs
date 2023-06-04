@@ -45,11 +45,11 @@ public partial class ElementProvider : Node
     {
         ElementData elementData = new ElementData(elementDef.Type);
 
-        elementData.Ports = new List<PortData>();
+        elementData.Ports = new List<string>();
         elementData.Data = new Dictionary<string, string>();
 
         for (int ctr = 0; ctr < elementDef.PortCount; ctr++)
-            elementData.Ports.Add(new PortData());
+            elementData.Ports.Add(CircuitManager.Instance.NewID());
 
         foreach (KeyValuePair<string, string> godotKVP in elementDef.Data)
             elementData.Data.Add(godotKVP.Key, godotKVP.Value);

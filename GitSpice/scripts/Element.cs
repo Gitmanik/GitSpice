@@ -33,7 +33,7 @@ public partial class Element : Control
             throw new ArgumentException("Data.Ports is null");
         for (int idx = 0; idx < Data.Ports.Count; idx++)
         {
-            Ports[idx].Data = Data.Ports[idx];
+            Ports[idx].PortId = Data.Ports[idx];
             Ports[idx].ParentElement = this;
         }
 
@@ -58,7 +58,7 @@ public partial class Element : Control
 
             if (Data.Ports.Count == 2)
             {
-                var loop = CircuitManager.Instance.CalculateLoop(Data.Ports[0].Id, Data.Ports[1].Id);
+                var loop = CircuitManager.Instance.CalculateLoop(Data.Ports[0], Data.Ports[1]);
 
                 CircuitManager.Instance.ColorLoop(loop, Moving ? GodotHelpers.RandomColor() : Colors.White);
 

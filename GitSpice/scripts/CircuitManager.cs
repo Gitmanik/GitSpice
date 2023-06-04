@@ -71,7 +71,7 @@ public partial class CircuitManager : Node
     /// <param name="line"></param>
     private void CreateBoundConnection(ConnectionData conn, ElementPort Port1, ElementPort Port2, Line2D line)
     {
-        if (Port1.Data.Id == Port2.Data.Id)
+        if (Port1.PortId == Port2.PortId)
         {
             Logger.Warn("Cannot connect port to itself!");
             return;
@@ -109,7 +109,7 @@ public partial class CircuitManager : Node
     {
         foreach (var element in BoundElements)
         {
-            var port = element.Element.Ports.Find(x => x.Data.Id == Port);
+            var port = element.Element.Ports.Find(x => x.PortId == Port);
             if (port != null)
                 return port;
         }
@@ -153,13 +153,13 @@ public partial class CircuitManager : Node
     /// <returns>Connection object</returns>
     public ConnectionData ConnectPorts(ElementPort Port1, ElementPort Port2)
     {
-        ConnectionData existingConnection = FindConnection(Port1.Data.Id, Port2.Data.Id);
+        ConnectionData existingConnection = FindConnection(Port1.PortId, Port2.PortId);
         if (existingConnection != null)
         {
             throw new ArgumentException($"Tried to create already existing connection! (Port1: {Port1}, Port2: {Port2})");
         }
 
-        ConnectionData conn = new ConnectionData(Port1.Data.Id, Port2.Data.Id);
+        ConnectionData conn = new ConnectionData(Port1.PortId, Port2.PortId);
         Circuit.Connections.Add(conn);
 
         var line = CreateLine2D(new Vector2[] { Port1.Centroid, Port2.Centroid });
@@ -229,7 +229,7 @@ public partial class CircuitManager : Node
         //Update connections
         foreach (ElementPort port in element.Ports)
         {
-            List<CircuitManager.BoundConnection> connections = FindBoundConnections(port.Data.Id);
+            List<CircuitManager.BoundConnection> connections = FindBoundConnections(port.PortId);
             foreach (var connection in connections)
             {
                 connection.Line.Points = new Vector2[] { connection.Port1.Centroid, connection.Port2.Centroid };
@@ -325,7 +325,7 @@ public partial class CircuitManager : Node
     {
         foreach (ElementPort port in element.Ports)
         {
-            var conns = BoundConnections.FindAll(x => (x.Port1.Data.Id == port.Data.Id || x.Port2.Data.Id == port.Data.Id));
+            var conns = BoundConnections.FindAll(x => (x.Port1.PortId == port.PortId || x.Port2.PortId == port.PortId));
 
             foreach (var conn in conns)
             {
@@ -371,21 +371,21 @@ public partial class CircuitManager : Node
         foreach (var boundConn in CircuitManager.Instance.GetBoundConnections())
         {
             bool foundJunction = false;
-            Logger.Debug($"Parsing BoundConnection: {boundConn.Port1.Data.Id} {boundConn.Port2.Data.Id}");
+            Logger.Debug($"Parsing BoundConnection: {boundConn.Port1.PortId} {boundConn.Port2.PortId}");
             foreach (var junction in junctions)
             {
-                if (junction.Contains(boundConn.Port1.Data.Id) || junction.Contains(boundConn.Port2.Data.Id))
+                if (junction.Contains(boundConn.Port1.PortId) || junction.Contains(boundConn.Port2.PortId))
                 {
-                    Logger.Debug($"Adding to existing junction: {boundConn.Port1.Data.Id} {boundConn.Port2.Data.Id}");
-                    junction.Add(boundConn.Port1.Data.Id);
-                    junction.Add(boundConn.Port2.Data.Id);
+                    Logger.Debug($"Adding to existing junction: {boundConn.Port1.PortId} {boundConn.Port2.PortId}");
+                    junction.Add(boundConn.Port1.PortId);
+                    junction.Add(boundConn.Port2.PortId);
                     foundJunction = true;
                 }
             }
             if (!foundJunction)
             {
-                Logger.Debug($"Created junction: {boundConn.Port1.Data.Id} {boundConn.Port2.Data.Id}");
-                junctions.Add(new HashSet<string>() { boundConn.Port1.Data.Id, boundConn.Port2.Data.Id });
+                Logger.Debug($"Created junction: {boundConn.Port1.PortId} {boundConn.Port2.PortId}");
+                junctions.Add(new HashSet<string>() { boundConn.Port1.PortId, boundConn.Port2.PortId });
             }
         }
         return junctions;
@@ -431,7 +431,7 @@ public partial class CircuitManager : Node
             var searchingPort = currentPort;
             if (currentElement.Ports.Count > 1 && !firstIteration)
             {
-                searchingPort = currentElement.Ports[0].Id == currentPort ? currentElement.Ports[1].Id : currentElement.Ports[0].Id;
+                searchingPort = currentElement.Ports[0] == currentPort ? currentElement.Ports[1] : currentElement.Ports[0];
                 Logger.Trace($"Setting searchingPort: {currentPort} -> {searchingPort}");
                 if (!visited.Contains(searchingPort))
                 {
@@ -445,7 +445,7 @@ public partial class CircuitManager : Node
 
             foreach (var p in CircuitManager.Instance.FindBoundConnections(searchingPort))
             {
-                string newPort = searchingPort == p.Port1.Data.Id ? p.Port2.Data.Id : p.Port1.Data.Id;
+                string newPort = searchingPort == p.Port1.PortId ? p.Port2.PortId : p.Port1.PortId;
 
                 Logger.Trace($"New port {currentPort} {searchingPort}: {newPort}");
                 if (visited.Contains(newPort))
@@ -488,7 +488,7 @@ public partial class CircuitManager : Node
             var port1 = loop[idx];
             var port2 = loop[idx + 1];
             Logger.Trace($"Ports: {port1} {port2}");
-            if (GetElements().Any(e => e.Data.Ports.ConvertAll(p => p.Id).SequenceEqual(new List<string>() { port1, port2 }) || e.Data.Ports.ConvertAll(p => p.Id).SequenceEqual(new List<string>() { port2, port1 })))
+            if (GetElements().Any(e => e.Data.Ports.SequenceEqual(new List<string>() { port1, port2 }) || e.Data.Ports.SequenceEqual(new List<string>() { port2, port1 })))
             {
                 Logger.Trace("Skipping element");
                 continue;
@@ -503,7 +503,7 @@ public partial class CircuitManager : Node
         }
     }
 
-    public string Calculate2ndKirchoffLaw(List<string> loop)
+    public string Calculate2ndKirchhoffLaw(List<string> loop)
     {
         List<string> voltages = new List<string>();
         string equation = "";
@@ -514,16 +514,16 @@ public partial class CircuitManager : Node
             var port2 = loop[idx];
             Logger.Trace($"Ports: {port1} {port2}");
 
-            Element e = CircuitManager.Instance.GetElements().Find(e => e.Data.Ports.ConvertAll(p => p.Id).SequenceEqual(new List<string>() { port1, port2 }) || e.Data.Ports.ConvertAll(p => p.Id).SequenceEqual(new List<string>() { port2, port1 }));
+            Element e = CircuitManager.Instance.GetElements().Find(e => e.Data.Ports.SequenceEqual(new List<string>() { port1, port2 }) || e.Data.Ports.SequenceEqual(new List<string>() { port2, port1 }));
             if (e == null)
             {
                 Logger.Trace("Skipping non-element");
                 continue;
             }
-            Logger.Trace($"Element ports: {e.Ports[0].Data.Id} {e.Ports[1].Data.Id}, ports: {port1} {port2}");
+            Logger.Trace($"Element ports: {e.Ports[0].PortId} {e.Ports[1].PortId}, ports: {port1} {port2}");
 
             string sign = "+";
-            if (e.Ports[0].Data.Id != port1) // TODO: Make more sophisticated signing
+            if (e.Ports[0].PortId != port1) // TODO: Make more sophisticated signing
                 sign = "-";
 
             string eq_part = $" {sign} {e.GetVoltage()}";

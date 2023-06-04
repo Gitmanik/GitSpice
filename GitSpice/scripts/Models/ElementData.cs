@@ -17,5 +17,5 @@ public class ElementData
     public Dictionary<string, string> Data;
     public Vector2 Position;
     public float Rotation;
-    public List<PortData> Ports;
+    public List<string> Ports;
 }

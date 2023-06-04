@@ -55,7 +55,7 @@ public partial class UserInputController : Control
             {
                 foreach (Element e in CircuitManager.Instance.GetElements())
                     if (e.Data.Ports.Count == 2)
-                        CircuitManager.Instance.CalculateLoop(e.Data.Ports[0].Id, e.Data.Ports[1].Id);
+                        CircuitManager.Instance.CalculateLoop(e.Data.Ports[0], e.Data.Ports[1]);
 
                 GetViewport().SetInputAsHandled();
                 return;
@@ -210,12 +210,12 @@ public partial class UserInputController : Control
 
     private void ConnectingWireConnect(ElementPort clickedPort)
     {
-        if (!CircuitManager.Instance.ConnectionExists(CurrentlyConnecting.Data.Id, clickedPort.Data.Id))
+        if (!CircuitManager.Instance.ConnectionExists(CurrentlyConnecting.PortId, clickedPort.PortId))
         {
             CircuitManager.Instance.ConnectPorts(CurrentlyConnecting, clickedPort);
         }
         else
-            Logger.Warn($"Tried to create already existing connection! (Port1: {CurrentlyConnecting.Data.Id}, Port2: {clickedPort.Data.Id})");
+            Logger.Warn($"Tried to create already existing connection! (Port1: {CurrentlyConnecting.PortId}, Port2: {clickedPort.PortId})");
 
         ResetConnecting();
     }
