@@ -10,11 +10,19 @@ public class MaximaService
     private Process MaximaProcess = null;
     private string PathToMaxima;
 
+    private static readonly string[] StartupCommands =
+    {
+        "[linsolve_params: false, globalsolve: false]"
+    };
+
     public MaximaService(string pathToMaxima)
     {
         Logger.Info("Creating MaximaService");
         PathToMaxima = pathToMaxima;
         MaximaProcess = SpawnMaxima();
+
+        foreach (string command in StartupCommands)
+            Evaluate(command);
     }
 
     private Process SpawnMaxima()
@@ -60,9 +68,10 @@ public class MaximaService
                 throw new Exception($"Maxima Error: {result}");
             }
         }
-        Logger.Info(result);
+        result = result.TrimEnd('$');
+        Logger.Debug($"Result: {result}");
         MaximaProcess.StandardOutput.ReadLine(); //Removes 'done'
 
-        return result.TrimEnd('$');
+        return result;
     }
 }
