@@ -533,6 +533,8 @@ public partial class CircuitManager : Node
             equation += eq_part;
         }
 
+        equation += " = 0";
+
         Logger.Debug($"Calculated 2nd law for loop: {equation}");
         return equation;
     }
@@ -561,9 +563,9 @@ public partial class CircuitManager : Node
         return all;
     }
 
-    public string SolveLinearSystem(List<string> equations, Element solveFor)
+    public string SolveLinearSystem(List<string> equations, List<string> variables, Element solveFor)
     {
-        string command = $"ev({solveFor.Data.GetVoltage()},linsolve([{string.Join(", ", equations)}], [{solveFor.Data.GetVoltage()}]));";
+        string command = $"ev({solveFor.Data.GetVoltage()},linsolve([{string.Join(", ", equations)}], [{string.Join(", ", variables)}]));";
 
         Logger.Debug($"Maxima command: {command}");
 

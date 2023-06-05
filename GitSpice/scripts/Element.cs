@@ -73,7 +73,7 @@ public partial class Element : Control
                         givens_eq.Add($"{kvp.Key}={kvp.Value}");
                     givens_eq.Add(secondKirchhoff);
 
-                    string res = CircuitManager.Instance.SolveLinearSystem(givens_eq, this);
+                    string res = CircuitManager.Instance.SolveLinearSystem(givens_eq, givens.Keys.ToList(), this);
                     Logger.Info(res);
                     infoPanelText += $"[b]2nd Kirchoff:[/b] {secondKirchhoff}\n";
                     infoPanelText += $"[b]Voltage value:[/b] {res}\n";
