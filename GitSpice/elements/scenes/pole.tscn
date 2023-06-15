@@ -1,13 +1,13 @@
-[gd_scene load_steps=4 format=3 uid="uid://cneodrvyo5o4l"]
+[gd_scene load_steps=4 format=3 uid="uid://djaaqdhu76oog"]
 
-[ext_resource type="Script" path="res://scripts/Element.cs" id="1_0uwji"]
+[ext_resource type="Script" path="res://scripts/Views/Element/Element.cs" id="1_nt0vy"]
 [ext_resource type="Texture2D" uid="uid://cmlylo3eeet1f" path="res://elements/symbols/Pole.png" id="2_e4x6s"]
-[ext_resource type="Script" path="res://scripts/ElementPort.cs" id="3_n3mbq"]
+[ext_resource type="Script" path="res://scripts/Views/Element/ElementPort.cs" id="3_p1c3y"]
 
 [node name="Pole" type="Control"]
 layout_mode = 3
 anchors_preset = 0
-script = ExtResource("1_0uwji")
+script = ExtResource("1_nt0vy")
 
 [node name="TextureRect" type="TextureRect" parent="."]
 layout_mode = 0
@@ -36,6 +36,6 @@ offset_top = -8.0
 offset_right = 8.0
 offset_bottom = 8.0
 action_mode = 0
-script = ExtResource("3_n3mbq")
+script = ExtResource("3_p1c3y")
 
 [connection signal="gui_input" from="TextureRect" to="." method="_TextureRectGuiInput"]

@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://dp0kfh0uc3j6e"]
 
 [ext_resource type="Script" path="res://scripts/Utils/DialogHelper.gd" id="1_2dqek"]
-[ext_resource type="PackedScene" uid="uid://laqgl8yctld3" path="res://scenes/toolbar.tscn" id="2_yctn3"]
+[ext_resource type="PackedScene" path="res://scenes/toolbar.tscn" id="2_yctn3"]
 [ext_resource type="Script" path="res://scripts/Controllers/UserInputController.cs" id="3_eug88"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jd5sw"]

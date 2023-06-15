@@ -1,13 +1,13 @@
-[gd_scene load_steps=4 format=3 uid="uid://4f572ioiva5a"]
+[gd_scene load_steps=4 format=3 uid="uid://bypp70awoe7tr"]
 
-[ext_resource type="Script" path="res://scripts/Element.cs" id="1_fsvpg"]
+[ext_resource type="Script" path="res://scripts/Views/Element/Element.cs" id="1_obghs"]
 [ext_resource type="Texture2D" uid="uid://dymukkuutqbs3" path="res://elements/symbols/voltmeter.png" id="2_xh5ud"]
-[ext_resource type="Script" path="res://scripts/ElementPort.cs" id="3_sfwxt"]
+[ext_resource type="Script" path="res://scripts/Views/Element/ElementPort.cs" id="3_i6igq"]
 
 [node name="Voltage Source" type="Control"]
 layout_mode = 3
 anchors_preset = 0
-script = ExtResource("1_fsvpg")
+script = ExtResource("1_obghs")
 
 [node name="TextureRect" type="TextureRect" parent="."]
 layout_mode = 0
@@ -35,7 +35,7 @@ offset_top = -8.0
 offset_right = -21.0
 offset_bottom = 8.0
 action_mode = 0
-script = ExtResource("3_sfwxt")
+script = ExtResource("3_i6igq")
 
 [node name="Port2" type="Button" parent="Ports"]
 layout_mode = 0
@@ -44,6 +44,6 @@ offset_top = -8.0
 offset_right = 37.0
 offset_bottom = 8.0
 action_mode = 0
-script = ExtResource("3_sfwxt")
+script = ExtResource("3_i6igq")
 
 [connection signal="gui_input" from="TextureRect" to="." method="_TextureRectGuiInput"]

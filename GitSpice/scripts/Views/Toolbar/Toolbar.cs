@@ -1,7 +1,4 @@
 using Godot;
-using System;
-using System.Collections.Generic;
-
 public partial class Toolbar : MarginContainer
 {
     private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();

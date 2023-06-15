@@ -19,10 +19,9 @@ boot_splash/show_image=false
 
 [autoload]
 
-LogManager="*res://scripts/Logging/LogManager.cs"
-ElementProvider="*res://scripts/ElementProvider.cs"
-CircuitManager="*res://scripts/CircuitManager.cs"
-SettingsController="*res://scripts/Controllers/SettingsController.cs"
+AppController="*res://scripts/Controllers/AppController.cs"
+ElementProvider="*res://scripts/Controllers/ElementProvider.cs"
+CircuitManager="*res://scripts/Controllers/CircuitManager.cs"
 
 [dotnet]
 

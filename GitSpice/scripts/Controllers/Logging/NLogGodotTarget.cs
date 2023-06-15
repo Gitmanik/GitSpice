@@ -2,7 +2,7 @@ using Godot;
 using NLog;
 using NLog.Targets;
 
-namespace Gitmanik.Logging.Godot;
+namespace Gitmanik.Controllers.Logging.Godot;
 
 [Target("Godot")]
 public sealed class NLogGodotTarget : TargetWithLayout

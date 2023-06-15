@@ -1,13 +1,13 @@
-[gd_scene load_steps=4 format=3 uid="uid://dc8sd7nkhibft"]
+[gd_scene load_steps=4 format=3 uid="uid://d3g0spjkjqxeh"]
 
-[ext_resource type="Script" path="res://scripts/Element.cs" id="1_2ah7m"]
+[ext_resource type="Script" path="res://scripts/Views/Element/Element.cs" id="1_i814k"]
 [ext_resource type="Texture2D" uid="uid://dhb0nxxut4rlw" path="res://elements/symbols/resistor.png" id="2_ku1cg"]
-[ext_resource type="Script" path="res://scripts/ElementPort.cs" id="3_tvc2h"]
+[ext_resource type="Script" path="res://scripts/Views/Element/ElementPort.cs" id="3_hcbhd"]
 
 [node name="Resistor" type="Control"]
 layout_mode = 3
 anchors_preset = 0
-script = ExtResource("1_2ah7m")
+script = ExtResource("1_i814k")
 
 [node name="TextureRect" type="TextureRect" parent="."]
 layout_mode = 0
@@ -35,7 +35,7 @@ offset_top = -8.0
 offset_right = -21.0
 offset_bottom = 8.0
 action_mode = 0
-script = ExtResource("3_tvc2h")
+script = ExtResource("3_hcbhd")
 
 [node name="Port2" type="Button" parent="Ports"]
 layout_mode = 0
@@ -44,6 +44,6 @@ offset_top = -8.0
 offset_right = 37.0
 offset_bottom = 8.0
 action_mode = 0
-script = ExtResource("3_tvc2h")
+script = ExtResource("3_hcbhd")
 
 [connection signal="gui_input" from="TextureRect" to="." method="_TextureRectGuiInput"]

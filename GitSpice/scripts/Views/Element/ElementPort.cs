@@ -23,16 +23,16 @@ public partial class ElementPort : Button
 
     public override void _Draw()
     {
-        if (SettingsController.Instance.Data.DebugDrawIds)
+        if (AppController.Settings.Data.DebugDrawIds)
             DrawString(ThemeDB.FallbackFont, Vector2.Zero, PortId, HorizontalAlignment.Center);
     }
 
     public override void _Pressed()
     {
         // Stop moving when Port is clicked (Pole having port in the middle fix)
-        if (ParentElement.Moving)
+        if (ParentElement.Selected)
         {
-            ParentElement.Moving = false;
+            ParentElement.Selected = false;
             Element.IsCurrentlyMoving = false;
             this.ButtonPressed = false;
             return;

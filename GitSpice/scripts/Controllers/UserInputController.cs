@@ -1,8 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Gitmanik.Controllers;
-using Gitmanik.Math;
 using Gitmanik.Utils;
 using Godot;
 
@@ -17,24 +16,14 @@ public partial class UserInputController : Control
     public RichTextLabel InfoPanel;
 
     private ElementDefinition PoleElementDef;
-    private string circuitPath = null;
-    public MaximaService Maxima;
+    private string CurrentCircuitPath = null;
 
     public override void _Ready()
     {
+        Instance = this;
         ElementContainerScene = GetNode<Control>(CircuitManager.ElementContainerPath);
         PoleElementDef = ElementProvider.Instance.GetElementDefinition("Pole");
-        Instance = this;
-        Maxima = new MaximaService(SettingsController.Instance.Data.PathToMaxima);
         InfoPanel = GetNode<RichTextLabel>("/root/main/InfoPanel/RichTextLabel");
-    }
-
-    public override void _Notification(int what)
-    {
-        if (what != NotificationWMCloseRequest && what != NotificationWMGoBackRequest)
-            return;
-
-        GetTree().Quit();
     }
 
     bool mouseClickedBool = false;
@@ -69,10 +58,10 @@ public partial class UserInputController : Control
             }
             if (key.Keycode == Key.S)
             {
-                if (circuitPath == null)
+                if (CurrentCircuitPath == null)
                     SaveFileDialog();
                 else
-                    save_circuit(circuitPath);
+                    save_circuit(CurrentCircuitPath);
                 GetViewport().SetInputAsHandled();
                 return;
             }
@@ -148,15 +137,15 @@ public partial class UserInputController : Control
             // Scale
             if (mouseClicked.ButtonIndex == MouseButton.WheelUp && !mouseClicked.Pressed && !Element.IsCurrentlyMoving)
             {
-                Scale += Vector2.One * SettingsController.Instance.Data.ZoomMultiplier;
-                Position -= RelativePosition(mouseClicked.Position) * SettingsController.Instance.Data.ZoomMultiplier;
+                Scale += Vector2.One * AppController.Settings.Data.ZoomMultiplier;
+                Position -= RelativePosition(mouseClicked.Position) * AppController.Settings.Data.ZoomMultiplier;
                 GetViewport().SetInputAsHandled();
                 return;
             }
             if (mouseClicked.ButtonIndex == MouseButton.WheelDown && !mouseClicked.Pressed && !Element.IsCurrentlyMoving)
             {
-                Scale -= Vector2.One * SettingsController.Instance.Data.ZoomMultiplier;
-                Position += RelativePosition(mouseClicked.Position) * SettingsController.Instance.Data.ZoomMultiplier;
+                Scale -= Vector2.One * AppController.Settings.Data.ZoomMultiplier;
+                Position += RelativePosition(mouseClicked.Position) * AppController.Settings.Data.ZoomMultiplier;
                 GetViewport().SetInputAsHandled();
                 return;
             }
@@ -233,11 +222,41 @@ public partial class UserInputController : Control
         CircuitManager.Instance.MoveElement(element, SnapToGrid(RelativePosition(e.GlobalPosition)));
     }
 
+    public void ElementSelected(Element element, bool isSelected)
+    {
+        string infoPanelText = "";
+
+        if (element.Ports.Count == 2)
+        {
+            var loop = CircuitManager.Instance.CalculateLoop(element.Data.Ports[0], element.Data.Ports[1]);
+
+            CircuitManager.Instance.ColorLoop(loop, isSelected ? GodotHelpers.RandomColor() : Colors.White);
+
+            if (isSelected)
+            {
+                string secondKirchhoff = CircuitManager.Instance.Calculate2ndKirchhoffLaw(loop);
+
+                var givens = CircuitManager.Instance.GetAllGivens(loop);
+                var givens_eq = new List<string>();
+                foreach (var kvp in givens)
+                    givens_eq.Add($"{kvp.Key}={kvp.Value}");
+                givens_eq.Add(secondKirchhoff);
+
+                string res = CircuitManager.Instance.SolveLinearSystem(givens_eq, givens.Keys.ToList(), element);
+                Logger.Info(res);
+                infoPanelText += $"[b]2nd Kirchoff:[/b] {secondKirchhoff}\n";
+                infoPanelText += $"[b]Voltage value:[/b] {res}\n";
+                infoPanelText += string.Join('\n', element.Data.Data.ToList().ConvertAll(x => $"[b]{x.Key}:[/b] {x.Value}"));
+            }
+        }
+
+        UserInputController.Instance.InfoPanel.Text = infoPanelText;
+    }
+
     private Vector2 SnapToGrid(Vector2 v)
     {
-        //TODO: Make grid configurable
-        v.X = Mathf.Round(v.X / 10f) * 10f;
-        v.Y = Mathf.Round(v.Y / 10f) * 10f;
+        v.X = Mathf.Round(v.X / AppController.Settings.Data.GridSize) * AppController.Settings.Data.GridSize;
+        v.Y = Mathf.Round(v.Y / AppController.Settings.Data.GridSize) * AppController.Settings.Data.GridSize;
         return v;
     }
 
@@ -248,29 +267,28 @@ public partial class UserInputController : Control
     /// <returns>Relative position</returns>
     private Vector2 RelativePosition(Vector2 pos) => (pos - Position) / Scale;
 
-    // TODO: Move to other node
+
+    #region Dialog handling
     public void OpenFileDialog()
     {
         Node dialoghelper = GetNode("/root/main/DialogHelper");
-        dialoghelper.Call("open_file_dialog", SettingsController.Instance.Data.LastDialog);
+        dialoghelper.Call("open_file_dialog", AppController.Settings.Data.LastDialog);
     }
 
-    // TODO: Move to other Node
     public void SaveFileDialog()
     {
         Node dialoghelper = GetNode("/root/main/DialogHelper");
-        dialoghelper.Call("save_file_dialog", SettingsController.Instance.Data.LastDialog);
+        dialoghelper.Call("save_file_dialog", AppController.Settings.Data.LastDialog);
     }
 
-    // TODO: Move to other Node
     //Called from DialogHelper.gd
     void load_circuit(string loadPath)
     {
         Logger.Info($"Loading circuit from {loadPath}");
 
-        SettingsController.Instance.Data.LastDialog = Path.GetDirectoryName(loadPath);
+        AppController.Settings.Data.LastDialog = Path.GetDirectoryName(loadPath);
 
-        circuitPath = loadPath;
+        CurrentCircuitPath = loadPath;
 
         var circuitFile = Godot.FileAccess.Open(loadPath, Godot.FileAccess.ModeFlags.Read);
         var circuitJsonText = circuitFile.GetAsText();
@@ -279,14 +297,13 @@ public partial class UserInputController : Control
         CircuitManager.Instance.LoadCircuit(circuitJsonText);
     }
 
-    // TODO: Move to other Node
     //Called from DialogHelper.gd
     public void save_circuit(string savePath)
     {
         Logger.Info("Saving current Circuit state");
 
-        circuitPath = savePath;
-        SettingsController.Instance.Data.LastDialog = Path.GetDirectoryName(savePath);
+        CurrentCircuitPath = savePath;
+        AppController.Settings.Data.LastDialog = Path.GetDirectoryName(savePath);
 
         var circuitFile = Godot.FileAccess.Open(savePath, Godot.FileAccess.ModeFlags.Write);
         var circuitJsonText = CircuitManager.Instance.SaveCircuit();
@@ -296,4 +313,5 @@ public partial class UserInputController : Control
 
         Logger.Debug($"Saved CircuitData to file {savePath}:\n{circuitJsonText}");
     }
+    #endregion
 }

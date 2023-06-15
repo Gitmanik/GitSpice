@@ -10,4 +10,5 @@ public class Settings
     public float ZoomMultiplier = 0.1f;
     public string PathToMaxima = @"C:\maxima-5.46.0\bin\maxima.bat";
     public bool DebugDrawIds = true;
+    public float GridSize = 10f;
 }

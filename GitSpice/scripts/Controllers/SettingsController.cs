@@ -1,30 +1,23 @@
 using System;
 using System.IO;
 using System.Text.Json;
-using Gitmanik.Models;
-using Godot;
-
 namespace Gitmanik.Controllers;
 
-public partial class SettingsController : Node
+public class SettingsController<T> where T : class, new()
 {
     private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-    public Settings Data;
+    public T Data;
 
-    private const string DataPath = "user://settings.json";
-    private string GlobalPath => Godot.ProjectSettings.GlobalizePath(DataPath);
-    public static SettingsController Instance;
+    private string DataPath;
 
-    public override void _EnterTree()
+    public SettingsController(string dataPath)
     {
-        Logger.Debug("SettingsController starting");
-        Instance = this;
-
-        if (File.Exists(GlobalPath))
+        DataPath = dataPath;
+        if (File.Exists(DataPath))
         {
             Logger.Debug("Loading Data file");
-            Data = JsonSerializer.Deserialize<Settings>(File.ReadAllText(GlobalPath), options: new System.Text.Json.JsonSerializerOptions() { IncludeFields = true });
+            Data = JsonSerializer.Deserialize<T>(File.ReadAllText(DataPath), options: new System.Text.Json.JsonSerializerOptions() { IncludeFields = true });
             if (Data == null)
             {
                 Logger.Warn("Data file corrupt!");
@@ -38,17 +31,9 @@ public partial class SettingsController : Node
         }
     }
 
-    public override void _Notification(int what)
-    {
-        if (what != NotificationWMCloseRequest)
-            return;
-
-        SaveData();
-    }
-
     private void CreateNewData()
     {
-        Data = new Settings();
+        Data = new T();
         SaveData();
     }
 
@@ -57,7 +42,7 @@ public partial class SettingsController : Node
         Logger.Debug("Saving data");
         try
         {
-            File.WriteAllText(GlobalPath, JsonSerializer.Serialize(Data, options: new System.Text.Json.JsonSerializerOptions() { IncludeFields = true }));
+            File.WriteAllText(DataPath, JsonSerializer.Serialize(Data, options: new System.Text.Json.JsonSerializerOptions() { IncludeFields = true }));
         }
         catch (Exception e)
         {

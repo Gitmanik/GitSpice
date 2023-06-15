@@ -1,6 +1,6 @@
-[gd_scene load_steps=2 format=3 uid="uid://laqgl8yctld3"]
+[gd_scene load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://scripts/Toolbar/Toolbar.cs" id="1_bbnyc"]
+[ext_resource type="Script" path="res://scripts/Views/Toolbar/Toolbar.cs" id="1_uydeb"]
 
 [node name="Toolbar" type="MarginContainer"]
 anchors_preset = 12
@@ -10,7 +10,7 @@ anchor_bottom = 1.0
 offset_top = -50.0
 grow_horizontal = 2
 grow_vertical = 0
-script = ExtResource("1_bbnyc")
+script = ExtResource("1_uydeb")
 
 [node name="Panel" type="Panel" parent="."]
 layout_mode = 2

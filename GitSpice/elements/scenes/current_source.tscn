@@ -1,8 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://enn2pkg2mfsr"]
+[gd_scene load_steps=4 format=3]
 
-[ext_resource type="Script" path="res://scripts/Element.cs" id="1_gnayi"]
+[ext_resource type="Script" path="res://scripts/Views/Element/Element.cs" id="1_gnayi"]
 [ext_resource type="Texture2D" uid="uid://bi27773hlmr43" path="res://elements/symbols/ammeter.png" id="2_0le4d"]
-[ext_resource type="Script" path="res://scripts/ElementPort.cs" id="3_xdxgx"]
+[ext_resource type="Script" path="res://scripts/Views/Element/ElementPort.cs" id="3_xdxgx"]
 
 [node name="Current Source" type="Control"]
 layout_mode = 3

@@ -4,6 +4,7 @@ using Godot;
 using Gitmanik.Utils.Extensions;
 using System.Linq;
 using Gitmanik.Models;
+using Gitmanik.Controllers;
 
 public partial class CircuitManager : Node
 {
@@ -569,6 +570,6 @@ public partial class CircuitManager : Node
 
         Logger.Debug($"Maxima command: {command}");
 
-        return UserInputController.Instance.Maxima.Evaluate(command);
+        return AppController.Maxima.Evaluate(command);
     }
 }

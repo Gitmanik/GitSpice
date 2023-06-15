@@ -1,6 +1,5 @@
 using Gitmanik.Models;
 using Gitmanik.Controllers;
-using Gitmanik.Utils;
 using Godot;
 using System;
 using System.Collections.Generic;
@@ -15,7 +14,7 @@ public partial class Element : Control
     /// True if this element is currently moving
     /// </summary>
     /// <value></value>
-    public bool Moving;
+    public bool Selected;
 
     /// <summary>
     /// Indicates whether any Element is moving
@@ -40,63 +39,38 @@ public partial class Element : Control
         Name = Data.Id;
     }
 
+    const int IdFontSize = 14;
+    Vector2 IdPosition = new Vector2(0, IdFontSize / 2);
     public override void _Draw()
     {
-        if (SettingsController.Instance.Data.DebugDrawIds)
-            DrawString(ThemeDB.FallbackFont, Vector2.Zero, Data.Id, HorizontalAlignment.Center);
+        if (AppController.Settings.Data.DebugDrawIds)
+            DrawString(ThemeDB.FallbackFont, IdPosition, Data.Id, HorizontalAlignment.Center, fontSize: IdFontSize);
     }
 
     public void _TextureRectGuiInput(InputEvent @event)
     {
         if (@event is InputEventMouseButton mouseClick && mouseClick.ButtonIndex == MouseButton.Left && mouseClick.Pressed)
         {
-            Moving = !Moving;
-            IsCurrentlyMoving = Moving;
-            Logger.Debug($"Moving: {Name} {Moving}");
+            Selected = !Selected;
+            IsCurrentlyMoving = Selected;
+            Logger.Debug($"Selected: {Name} {Selected}");
 
-            string infoPanelText = "";
-
-            if (Data.Ports.Count == 2)
-            {
-                var loop = CircuitManager.Instance.CalculateLoop(Data.Ports[0], Data.Ports[1]);
-
-                CircuitManager.Instance.ColorLoop(loop, Moving ? GodotHelpers.RandomColor() : Colors.White);
-
-                //TODO: Remove me
-                if (Moving)
-                {
-                    string secondKirchhoff = CircuitManager.Instance.Calculate2ndKirchhoffLaw(loop);
-
-                    var givens = CircuitManager.Instance.GetAllGivens(loop);
-                    var givens_eq = new List<string>();
-                    foreach (var kvp in givens)
-                        givens_eq.Add($"{kvp.Key}={kvp.Value}");
-                    givens_eq.Add(secondKirchhoff);
-
-                    string res = CircuitManager.Instance.SolveLinearSystem(givens_eq, givens.Keys.ToList(), this);
-                    Logger.Info(res);
-                    infoPanelText += $"[b]2nd Kirchoff:[/b] {secondKirchhoff}\n";
-                    infoPanelText += $"[b]Voltage value:[/b] {res}\n";
-                    infoPanelText += string.Join('\n', Data.Data.ToList().ConvertAll(x => $"[b]{x.Key}:[/b] {x.Value}"));
-                }
-            }
-
-            UserInputController.Instance.InfoPanel.Text = infoPanelText;
-
+            UserInputController.Instance.ElementSelected(this, Selected);
             GetViewport().SetInputAsHandled();
+            return;
         }
     }
 
     public override void _Input(InputEvent @event)
     {
-        if (Moving && @event is InputEventMouseMotion mouseMove)
+        if (Selected && @event is InputEventMouseMotion mouseMove)
         {
             UserInputController.Instance.MoveElement(this, mouseMove);
             GetViewport().SetInputAsHandled();
             return;
         }
 
-        if (Moving && @event is InputEventMouseButton mouseButton && mouseButton.IsPressed())
+        if (Selected && @event is InputEventMouseButton mouseButton && mouseButton.IsPressed())
         {
             if (mouseButton.ButtonIndex == MouseButton.Right)
             {
@@ -109,13 +83,13 @@ public partial class Element : Control
             {
                 if (mouseButton.ButtonIndex == MouseButton.WheelUp)
                 {
-                    CircuitManager.Instance.RotateElement(this, Rotation + SettingsController.Instance.Data.ElementRotationAmount);
+                    CircuitManager.Instance.RotateElement(this, Rotation + AppController.Settings.Data.ElementRotationAmount);
                     GetViewport().SetInputAsHandled();
                     return;
                 }
                 if (mouseButton.ButtonIndex == MouseButton.WheelDown)
                 {
-                    CircuitManager.Instance.RotateElement(this, Rotation - SettingsController.Instance.Data.ElementRotationAmount);
+                    CircuitManager.Instance.RotateElement(this, Rotation - AppController.Settings.Data.ElementRotationAmount);
                     GetViewport().SetInputAsHandled();
                     return;
                 }
