@@ -61,7 +61,7 @@ public partial class SettingsController : Node
         }
         catch (Exception e)
         {
-            Logger.Error($"Exceptionm while saving data:\n{e}");
+            Logger.Error($"Exception while saving data:\n{e}");
         }
     }
 }
