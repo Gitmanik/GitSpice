@@ -5,6 +5,7 @@ using Gitmanik.Utils.Extensions;
 using System.Linq;
 using Gitmanik.Models;
 using Gitmanik.Controllers;
+using System.Text.Json;
 
 public partial class CircuitManager : Node
 {
@@ -246,7 +247,7 @@ public partial class CircuitManager : Node
     {
         Circuit.UserPosition = ElementContainerScene.Position.ToNumerics();
         Circuit.UserZoom = ElementContainerScene.Scale.X;
-        return System.Text.Json.JsonSerializer.Serialize(Circuit, options: new System.Text.Json.JsonSerializerOptions() { IncludeFields = true });
+        return JsonSerializer.Serialize(Circuit, options: new JsonSerializerOptions() { IncludeFields = true });
     }
 
     /// <summary>
@@ -271,7 +272,15 @@ public partial class CircuitManager : Node
         if (circuitJsonText == null)
             Circuit = new CircuitData();
         else
-            Circuit = System.Text.Json.JsonSerializer.Deserialize<CircuitData>(circuitJsonText, options: new System.Text.Json.JsonSerializerOptions() { IncludeFields = true });
+            try
+            {
+                Circuit = JsonSerializer.Deserialize<CircuitData>(circuitJsonText, options: new JsonSerializerOptions() { IncludeFields = true });
+            }
+            catch (JsonException e)
+            {
+                Logger.Error($"Error while loading circuit: {e}");
+                Circuit = new CircuitData();
+            }
 
         ElementContainerScene.Scale = new Vector2(Circuit.UserZoom, Circuit.UserZoom);
         ElementContainerScene.Position = Circuit.UserPosition.ToGodot();
