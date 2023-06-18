@@ -1,12 +1,11 @@
-[gd_resource type="Resource" load_steps=4 format=3]
+[gd_resource type="Resource" load_steps=4 format=3 uid="uid://ci5vi7ye3ohgn"]
 
-[ext_resource type="PackedScene" uid="uid://enn2pkg2mfsr" path="res://elements/scenes/current_source.tscn" id="1_dpsyb"]
+[ext_resource type="PackedScene" path="res://elements/scenes/current_source.tscn" id="1_dpsyb"]
 [ext_resource type="Texture2D" uid="uid://bi27773hlmr43" path="res://elements/symbols/ammeter.png" id="2_mt35a"]
 [ext_resource type="Script" path="res://scripts/Models/ElementDefinition.cs" id="3_k4f78"]
 
 [resource]
 script = ExtResource("3_k4f78")
-Type = "Current_Source"
 Scene = ExtResource("1_dpsyb")
 Data = {
 "Amount": "1"

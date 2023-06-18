@@ -1,12 +1,11 @@
-[gd_resource type="Resource" load_steps=4 format=3]
+[gd_resource type="Resource" load_steps=4 format=3 uid="uid://dqvw5diqxwye"]
 
-[ext_resource type="PackedScene" uid="uid://4f572ioiva5a" path="res://elements/scenes/voltage_source.tscn" id="1_e27gq"]
+[ext_resource type="PackedScene" uid="uid://bypp70awoe7tr" path="res://elements/scenes/voltage_source.tscn" id="1_e27gq"]
 [ext_resource type="Texture2D" uid="uid://dymukkuutqbs3" path="res://elements/symbols/voltmeter.png" id="2_r3m8m"]
 [ext_resource type="Script" path="res://scripts/Models/ElementDefinition.cs" id="3_ytmpq"]
 
 [resource]
 script = ExtResource("3_ytmpq")
-Type = "Voltage_Source"
 Scene = ExtResource("1_e27gq")
 Data = {
 "Amount": "5"

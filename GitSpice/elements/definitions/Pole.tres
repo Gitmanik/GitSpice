@@ -1,11 +1,10 @@
-[gd_resource type="Resource" load_steps=3 format=3]
+[gd_resource type="Resource" load_steps=3 format=3 uid="uid://coa8j3l2hkxg5"]
 
-[ext_resource type="PackedScene" uid="uid://cneodrvyo5o4l" path="res://elements/scenes/pole.tscn" id="1_e1qfx"]
+[ext_resource type="PackedScene" uid="uid://djaaqdhu76oog" path="res://elements/scenes/pole.tscn" id="1_e1qfx"]
 [ext_resource type="Script" path="res://scripts/Models/ElementDefinition.cs" id="3_1v5u1"]
 
 [resource]
 script = ExtResource("3_1v5u1")
-Type = "Pole"
 Scene = ExtResource("1_e1qfx")
 Data = {
 "Resistance": "10"

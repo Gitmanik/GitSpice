@@ -1,6 +1,6 @@
-[gd_resource type="Resource" load_steps=4 format=3]
+[gd_resource type="Resource" load_steps=4 format=3 uid="uid://cy7g6kcym77oq"]
 
-[ext_resource type="PackedScene" uid="uid://dc8sd7nkhibft" path="res://elements/scenes/resistor.tscn" id="1_xswss"]
+[ext_resource type="PackedScene" uid="uid://d3g0spjkjqxeh" path="res://elements/scenes/resistor.tscn" id="1_xswss"]
 [ext_resource type="Texture2D" uid="uid://dhb0nxxut4rlw" path="res://elements/symbols/resistor.png" id="2_jqtln"]
 [ext_resource type="Script" path="res://scripts/Models/ElementDefinition.cs" id="2_p2br0"]
 
