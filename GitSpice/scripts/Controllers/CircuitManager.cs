@@ -39,7 +39,7 @@ public partial class CircuitManager : Node
     public static readonly string ElementContainerPath = "/root/main/ElementContainer";
     private Control ElementContainerScene;
 
-    public override void _Ready()
+    public override void _EnterTree()
     {
         Logger.Info("CircuitManager starting");
         ElementContainerScene = GetNode<Control>(ElementContainerPath);
@@ -539,6 +539,7 @@ public partial class CircuitManager : Node
         Logger.Debug($"Calculated 2nd law for loop: {equation}");
         return equation;
     }
+
     public Dictionary<string, string> GetAllGivens(List<string> loop)
     {
         loop.Insert(0, loop[loop.Count - 1]);

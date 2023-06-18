@@ -10,10 +10,6 @@ public partial class Toolbar : MarginContainer
     public override void _EnterTree()
     {
         Instance = this;
-    }
-
-    public override void _Ready()
-    {
         Logger.Info("Toolbar setting up");
 
         var toolbarItemScene = ResourceLoader.Load<PackedScene>("scenes/toolbar_item.tscn");
