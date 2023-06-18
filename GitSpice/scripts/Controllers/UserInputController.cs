@@ -69,7 +69,7 @@ public partial class UserInputController : Control
             }
             if (key.Keycode == Key.S)
             {
-                if (CurrentCircuitPath == null)
+                if (Input.IsKeyPressed(Key.Shift) || CurrentCircuitPath == null)
                     SaveFileDialog();
                 else
                     save_circuit(CurrentCircuitPath);
