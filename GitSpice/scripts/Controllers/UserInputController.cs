@@ -24,6 +24,10 @@ public partial class UserInputController : Control
         ElementContainerScene = GetNode<Control>(CircuitManager.ElementContainerPath);
         PoleElementDef = ElementProvider.Instance.GetElementDefinition("Pole");
         InfoPanel = GetNode<RichTextLabel>("/root/main/InfoPanel/RichTextLabel");
+
+        // TODO: Remove this
+        load_circuit(@"..\Circuits\test.json");
+        CircuitManager.Instance.CalculateCurrentSymbols();
     }
 
     bool mouseClickedBool = false;
@@ -34,6 +38,13 @@ public partial class UserInputController : Control
     {
         if (@event is InputEventKey key && key.Echo == false && key.Pressed == true)
         {
+            if (key.Keycode == Key.Y)
+            {
+                CircuitManager.Instance.CalculateCurrentSymbols();
+                GetViewport().SetInputAsHandled();
+                return;
+            }
+
             if (key.Keycode == Key.C)
             {
                 ColorJunctions();

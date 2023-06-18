@@ -119,6 +119,25 @@ public partial class CircuitManager : Node
     }
 
     /// <summary>
+    /// Finds all connected ports to given Port Id
+    /// </summary>
+    /// <param name="portId"Port Id</param>
+    /// <returns>List od Port Ids</returns>
+    List<string> GetConnectedPorts(string portId) => FindBoundConnections(portId).ConvertAll(x => portId == x.Port1.PortId ? x.Port2.PortId : x.Port1.PortId);
+
+    /// <summary>
+    /// Returns all ports in Circuit
+    /// </summary>
+    /// <returns>List of Port Ids</returns>
+    List<string> GetAllPorts()
+    {
+        List<string> allPorts = new List<string>();
+        foreach (var l in Circuit.Elements.ConvertAll(x => x.Ports))
+            allPorts.AddRange(l);
+        return allPorts;
+    }
+
+    /// <summary>
     /// Created an element in CircuitData and its visual representation.
     /// Creates Element object (based on Type) and adds it to scene.
     /// Throws ArgumentException when element already exists.
@@ -489,6 +508,160 @@ public partial class CircuitManager : Node
         Logger.Debug($"Loop {begin}->{end}: {string.Join(',', path)}");
 
         return path;
+    }
+
+    public Dictionary<string, string> CalculateCurrentSymbols()
+    {
+        string TraverseElement(ElementData el, string portId)
+        {
+            var l = el.Ports.Find(x => x != portId);
+            return l ?? portId;
+        }
+        string GetElementIdForPort(string portId) => FindElementPort(portId).ParentElement.Data.Id;
+
+        List<List<string>> all = new List<List<string>>();
+
+        foreach (string port in GetAllPorts())
+        {
+            Logger.Trace("------");
+            List<string> elementPath = new List<string>();
+            string currentPort = port;
+            while (true)
+            {
+                Logger.Trace($"Current port: {currentPort}");
+
+                if (elementPath.Contains(currentPort))
+                {
+                    Logger.Trace("Loop detected. Breaking.");
+                    break;
+                }
+
+                var connectedPorts = GetConnectedPorts(currentPort);
+                string currentElementId = GetElementIdForPort(currentPort);
+                ElementData currentElement = Circuit.Elements.Find(x => x.Id == currentElementId);
+                string connectedPort = null;
+                if (connectedPorts.Count > 1 && currentElement.Type != "Pole")
+                {
+                    Logger.Trace($" {currentElementId}:{currentPort} is connected to more than one port. Breaking loop.");
+                    break;
+                }
+                else if (currentElement.Type == "Pole")
+                {
+                    Logger.Trace($"Current element {currentElementId}:{currentPort} is Pole");
+                    if (connectedPorts.Count > 2)
+                    {
+                        Logger.Trace($"Pole {currentElementId}:{currentPort} is connected to more than two ports. Breaking loop.");
+                        break;
+                    }
+                    Logger.Trace($"Adding {currentElementId} to list");
+                    elementPath.Add(currentPort);
+                    connectedPort = connectedPorts.Find(x => x != currentPort);
+                }
+                else if (connectedPorts.Count == 0)
+                {
+                    Logger.Trace($"Port {currentPort} is not connected to anything. Breaking loop");
+                    break;
+                }
+                else
+                {
+                    Logger.Trace($"Adding {currentElementId} to list");
+                    // elementPath.Add(currentElementId);
+                    elementPath.Add(currentPort);
+                    connectedPort = connectedPorts[0];
+                }
+                ElementData connectedElement = FindElementPort(connectedPort).ParentElement.Data;
+                if (connectedElement.Type == "Pole")
+                {
+                    Logger.Trace($"Connected element {connectedElement.Id} is Pole");
+                    var connectedToPole = GetConnectedPorts(connectedPort);
+                    Logger.Trace($"Adding Pole {connectedElement.Id} to list");
+                    // elementPath.Add(connectedElement.Id);
+                    elementPath.Add(connectedPort);
+                    if (connectedToPole.Count > 2)
+                    {
+                        Logger.Trace("Connected Pole is connected to more than two elements. Breaking loop");
+                        break;
+                    }
+                    string t = connectedToPole.Find(x => x != currentPort);
+                    Logger.Trace($"Traversing Pole {connectedElement.Id} from {connectedPort} to {t}");
+                    connectedPort = t;
+                }
+
+                Logger.Trace($"Connected port to {currentElementId}: {connectedPort}");
+                Logger.Trace($"Adding port {connectedPort} to list");
+                elementPath.Add(connectedPort);
+                string traversed = TraverseElement(FindElementPort(connectedPort).ParentElement.Data, connectedPort);
+                Logger.Trace($"Traversing from {currentPort} to {traversed}");
+                currentPort = traversed;
+            }
+
+            Logger.Trace($"Generated path: {string.Join(',', elementPath)}");
+            if (elementPath.Count > 0)
+                all.Add(elementPath);
+        }
+
+        List<List<string>> generatedPaths = new List<List<string>>();
+
+        bool IsSameElement(string port1, string port2) => Circuit.Elements.Any(x => (x.Ports.Count == 1 && x.Ports[0] == port1 && port1 == port2) || (x.Ports.Count == 2 && ((x.Ports[0] == port1 && x.Ports[1] == port2) || (x.Ports[0] == port2 && x.Ports[1] == port1))));
+
+        foreach (List<string> elementPath1 in all)
+        {
+            foreach (List<string> elementPath2 in all)
+            {
+                if (elementPath1 == elementPath2)
+                    continue;
+                if (IsSameElement(elementPath1[0], elementPath2[0]))
+                {
+                    List<string> reversedElementPath2 = new List<string>(elementPath2); reversedElementPath2.Reverse();
+
+                    List<string> fullPath = new List<string>(reversedElementPath2);
+                    fullPath.AddRange(elementPath1);
+
+                    if (!generatedPaths.Any(x => x.Intersect(fullPath).Count() == x.Count()))
+                    {
+                        generatedPaths.Add(fullPath.ToHashSet().ToList());
+                        Logger.Trace($"Connected {string.Join(',', elementPath1)} with {string.Join(',', elementPath2)}");
+                    }
+                    break;
+                }
+            }
+        }
+
+        Logger.Trace("All generated paths");
+        foreach (List<string> path in generatedPaths)
+        {
+            Logger.Trace(string.Join(',', path));
+        }
+
+        Dictionary<string, string> symbols = new Dictionary<string, string>();
+
+        int currentSymbolCtr = 1;
+        foreach (List<string> path in generatedPaths)
+        {
+            string symbol = $"I{currentSymbolCtr}";
+            List<string> path_copy = new List<string>(path);
+
+            while (path_copy.Count > 0)
+            {
+                string port = path_copy[0];
+                path_copy.RemoveAt(0);
+                ElementData element = FindElementPort(port).ParentElement.Data;
+
+                // Remove remaining ports of element
+                path_copy.RemoveRange(0, element.Ports.Count - 1);
+
+                if (element.Type == "Pole")
+                    continue;
+
+                symbols.Add(element.Id, symbol);
+            }
+            currentSymbolCtr++;
+        }
+        Logger.Debug("Generated symbols");
+        foreach (var kvp in symbols)
+            Logger.Debug($"{kvp}");
+
+        return symbols;
     }
 
     public void ColorLoop(List<string> loop, Color c)
