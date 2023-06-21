@@ -29,7 +29,7 @@ public class ElementData
             case "Resistor":
                 return $"Ur{Id}";
             case "Current_Source":
-                return null;
+                return "0";
             case "Pole":
                 return null;
             default:
@@ -39,19 +39,7 @@ public class ElementData
 
     public string GetCurrent()
     {
-        switch (Type)
-        {
-            case "Voltage_Source":
-                return $"Iu{Id}";
-            case "Resistor":
-                return $"Ir{Id}";
-            case "Current_Source":
-                return $"I{Id}";
-            case "Pole":
-                return null;
-            default:
-                throw new NotImplementedException();
-        }
+        return CircuitManager.Instance.CalculateCurrentSymbols()[Id];
     }
 
     /// <summary>
@@ -73,12 +61,12 @@ public class ElementData
                 return new Dictionary<string, string>()
                 {
                     {$"R{Id}", Data["Resistance"]},
-                    {$"Ur{Id}", $"R{Id}*Ir{Id}"}
+                    {$"Ur{Id}", $"R{Id}*{GetCurrent()}"}
                 };
             case "Current_Source":
                 return new Dictionary<string, string>()
                 {
-                    {$"I{Id}", Data["Amount"]},
+                    {GetCurrent(), Data["Amount"]},
                 };
             case "Pole":
                 return null;

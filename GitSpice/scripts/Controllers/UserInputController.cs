@@ -253,7 +253,10 @@ public partial class UserInputController : Control
                     givens_eq.Add($"{kvp.Key}={kvp.Value}");
                 givens_eq.Add(secondKirchhoff);
 
-                string res = CircuitManager.Instance.SolveLinearSystem(givens_eq, givens.Keys.ToList(), element);
+                List<string> vars = givens.Keys.ToList();
+                vars.AddRange(CircuitManager.Instance.CalculateCurrentSymbols().Values.Distinct());
+
+                string res = CircuitManager.Instance.SolveLinearSystem(givens_eq, vars.Distinct().ToList(), element);
                 Logger.Info(res);
                 infoPanelText += $"[b]2nd Kirchoff:[/b] {secondKirchhoff}\n";
                 infoPanelText += $"[b]Voltage value:[/b] {res}\n";
