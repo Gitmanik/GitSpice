@@ -23,7 +23,9 @@ public partial class ElementPort : Button
 
     public override void _Draw()
     {
-        if (AppController.Settings.Data.DebugDrawIds)
+        // macOS DrawString hang fix
+        // TODO: Make them labels
+        if (AppController.Settings.Data.DebugDrawIds && OS.GetName() != "macOS")
             DrawString(ThemeDB.FallbackFont, Vector2.Zero, PortId, HorizontalAlignment.Center);
     }
 

@@ -43,7 +43,9 @@ public partial class Element : Control
     Vector2 IdPosition = new Vector2(0, IdFontSize / 2);
     public override void _Draw()
     {
-        if (AppController.Settings.Data.DebugDrawIds)
+        // macOS DrawString hang fix
+        // TODO: Make them labels
+        if (AppController.Settings.Data.DebugDrawIds && OS.GetName() != "macOS")
             DrawString(ThemeDB.FallbackFont, IdPosition, Data.Id, HorizontalAlignment.Center, fontSize: IdFontSize);
     }
 
