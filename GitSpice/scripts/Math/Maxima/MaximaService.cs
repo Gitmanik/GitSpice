@@ -19,13 +19,25 @@ public class MaximaService
     {
         Logger.Info("Creating MaximaService");
         PathToMaxima = pathToMaxima;
-        MaximaProcess = SpawnMaxima();
+        try
+        {
+            SpawnMaxima();
+        }
+        catch (Exception e)
+        {
+            Logger.Fatal($"Could not spawn Maxima process! {e}");
+            return;
+        }
+    }
 
+    private void SpawnMaxima()
+    {
+        MaximaProcess = SpawnMaximaProcess();
         foreach (string command in StartupCommands)
             Evaluate(command);
     }
 
-    private Process SpawnMaxima()
+    private Process SpawnMaximaProcess()
     {
         Logger.Debug("Spawning new Maxima process");
         if (MaximaProcess != null)
@@ -73,5 +85,12 @@ public class MaximaService
         MaximaProcess.StandardOutput.ReadLine(); //Removes 'done'
 
         return result;
+    }
+
+    public void KillProcess()
+    {
+        Logger.Debug("Killing Maxima process");
+        MaximaProcess?.Kill();
+        Logger.Trace("Killed Maxima process.");
     }
 }

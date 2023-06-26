@@ -24,6 +24,8 @@ public partial class AppController : Node
         LogController.Configure(ProjectSettings.GlobalizePath("user://NLog/"));
         Settings = new SettingsController<Settings>(ProjectSettings.GlobalizePath("user://settings.json"));
         Maxima = new MaximaService(Settings.Data.PathToMaxima);
+
+        GetTree().AutoAcceptQuit = false;
     }
 
     public override void _Notification(int what)
@@ -31,7 +33,14 @@ public partial class AppController : Node
         if (what != NotificationWMCloseRequest)
             return;
 
+        Logger.Info("Closing app");
+
         Settings.SaveData();
+        Maxima.KillProcess();
+
+        NLog.LogManager.Flush();
+        NLog.LogManager.Shutdown();
+
         GetTree().Quit();
     }
 }
