@@ -38,9 +38,6 @@ public partial class AppController : Node
         Settings.SaveData();
         Maxima.KillProcess();
 
-        NLog.LogManager.Flush();
-        NLog.LogManager.Shutdown();
-
         GetTree().Quit();
     }
 }
