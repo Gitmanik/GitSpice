@@ -43,30 +43,55 @@ public class ElementData
     }
 
     /// <summary>
-    /// Returns all known variables
+    /// Returns all values associated with this Element
     /// </summary>
     /// <returns></returns>
-    public Dictionary<string, string> GetAllGivens()
+    public Dictionary<string, string> GetAllValues()
     {
-        Dictionary<string, string> givens = new Dictionary<string, string>();
-
         switch (Type)
         {
             case "Voltage_Source":
                 return new Dictionary<string, string>()
                 {
-                    {$"U{Id}", Data["Amount"]}
+                    {GetVoltage(), Data["Amount"]}
                 };
             case "Resistor":
                 return new Dictionary<string, string>()
                 {
                     {$"R{Id}", Data["Resistance"]},
-                    {$"Ur{Id}", $"R{Id}*{GetCurrent()}"}
                 };
             case "Current_Source":
                 return new Dictionary<string, string>()
                 {
                     {GetCurrent(), Data["Amount"]},
+                };
+            case "Pole":
+                return null;
+            default:
+                throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Returns all equations associated with this Element
+    /// </summary>
+    /// <returns></returns>
+    public Dictionary<string, string> GetAllEquations()
+    {
+        switch (Type)
+        {
+            case "Voltage_Source":
+                return new Dictionary<string, string>()
+                {
+                };
+            case "Resistor":
+                return new Dictionary<string, string>()
+                {
+                    {GetVoltage(), $"R{Id}*{GetCurrent()}"}
+                };
+            case "Current_Source":
+                return new Dictionary<string, string>()
+                {
                 };
             case "Pole":
                 return null;

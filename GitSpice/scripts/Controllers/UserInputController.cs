@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Gitmanik.Controllers;
+using Gitmanik.Models;
 using Gitmanik.Utils;
 using Godot;
 
@@ -247,16 +248,29 @@ public partial class UserInputController : Control
             {
                 string secondKirchhoff = CircuitManager.Instance.Calculate2ndKirchhoffLaw(loop);
 
-                var givens = CircuitManager.Instance.GetAllGivens(loop);
-                var givens_eq = new List<string>();
-                foreach (var kvp in givens)
-                    givens_eq.Add($"{kvp.Key}={kvp.Value}");
-                givens_eq.Add(secondKirchhoff);
+                Dictionary<string, string> currentSymbols = CircuitManager.Instance.CalculateCurrentSymbols();
+                List<ElementData> elements = CircuitManager.Instance.GetAllElementsInLoop(loop);
 
-                List<string> vars = givens.Keys.ToList();
-                vars.AddRange(CircuitManager.Instance.CalculateCurrentSymbols().Values.Distinct());
+                var equations = new List<string>();
+                List<string> symbols = new List<string>();
+                var variables = new Dictionary<string, string>();
+                equations.Add(secondKirchhoff);
 
-                string res = CircuitManager.Instance.SolveLinearSystem(givens_eq, vars.Distinct().ToList(), element);
+                foreach (var el in elements)
+                {
+                    variables = variables.Union(el.GetAllValues()).ToDictionary(s => s.Key, s => s.Value); ;
+                    foreach (var kvp in el.GetAllEquations())
+                    {
+                        equations.Add($"{kvp.Key}={kvp.Value}");
+                        symbols.Add(kvp.Key);
+                    }
+                }
+
+                Logger.Info(string.Join(',', variables));
+
+                symbols.AddRange(currentSymbols.Values.Distinct());
+
+                string res = CircuitManager.Instance.SolveLinearSystem(equations, variables, symbols, element);
                 Logger.Info(res);
                 infoPanelText += $"[b]2nd Kirchoff:[/b] {secondKirchhoff}\n";
                 infoPanelText += $"[b]Voltage value:[/b] {res}\n";

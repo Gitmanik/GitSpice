@@ -635,10 +635,12 @@ public partial class CircuitManager : Node
 
         Dictionary<string, string> symbols = new Dictionary<string, string>();
 
+        Logger.Trace("Assigning symbols in paths");
         int currentSymbolCtr = 1;
         foreach (List<string> path in generatedPaths)
         {
             string symbol = $"I{currentSymbolCtr}";
+            Logger.Trace($"Parsing path {string.Join(',', path)} with symbol {symbol}");
             List<string> path_copy = new List<string>(path);
 
             while (path_copy.Count > 0)
@@ -647,8 +649,13 @@ public partial class CircuitManager : Node
                 path_copy.RemoveAt(0);
                 ElementData element = FindElementPort(port).ParentElement.Data;
 
-                // Remove remaining ports of element
-                path_copy.RemoveRange(0, element.Ports.Count - 1);
+                Logger.Trace($"Current port: {port}, Element id: {element.Id}, type: {element.Type}");
+
+                if (symbols.ContainsKey(element.Id))
+                {
+                    Logger.Trace($"Symbol already assigned to {element.Id}, skipping");
+                    continue;
+                }
 
                 if (element.Type == "Pole")
                     continue;
@@ -722,8 +729,10 @@ public partial class CircuitManager : Node
         return equation;
     }
 
-    public Dictionary<string, string> GetAllGivens(List<string> loop)
+    public List<ElementData> GetAllElementsInLoop(List<string> loop)
     {
+        List<ElementData> elements = new List<ElementData>();
+
         loop.Insert(0, loop[loop.Count - 1]);
         var all = new Dictionary<string, string>();
         for (int idx = 0; idx < loop.Count - 1; idx++)
@@ -740,16 +749,24 @@ public partial class CircuitManager : Node
             }
             Logger.Trace($"Element ports: {e.Ports[0].PortId} {e.Ports[1].PortId}, ports: {port1} {port2}");
 
-            foreach (var kvp in e.Data.GetAllGivens())
-                all.Add(kvp.Key, kvp.Value);
+            elements.Add(e.Data);
         }
 
-        return all;
+        return elements;
     }
 
-    public string SolveLinearSystem(List<string> equations, List<string> variables, Element solveFor)
+    public string SolveLinearSystem(List<string> equations, Dictionary<string, string> givenValues, List<string> symbolsToSolve, Element solveFor)
     {
-        string command = $"ev({solveFor.Data.GetVoltage()},linsolve([{string.Join(", ", equations)}], [{string.Join(", ", variables)}]));";
+        string toComma(IEnumerable<string> l) => string.Join(',', l);
+
+        string command = "";
+
+        AppController.Maxima.Evaluate("kill(all);");
+
+        foreach (var val in givenValues)
+            AppController.Maxima.Evaluate($"{val.Key}:{val.Value};");
+
+        command += $"ev({solveFor.Data.GetVoltage()}, linsolve([{toComma(equations)}], [{toComma(symbolsToSolve)}]));";
 
         Logger.Debug($"Maxima command: {command}");
 
