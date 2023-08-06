@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Gitmanik.Controllers;
+using Gitmanik.Models;
 using Gitmanik.Utils;
 using Godot;
 
@@ -247,16 +248,21 @@ public partial class UserInputController : Control
             {
                 string secondKirchhoff = CircuitManager.Instance.Calculate2ndKirchhoffLaw(loop);
 
-                var givens = CircuitManager.Instance.GetAllGivens(loop);
-                var givens_eq = new List<string>();
-                foreach (var kvp in givens)
-                    givens_eq.Add($"{kvp.Key}={kvp.Value}");
-                givens_eq.Add(secondKirchhoff);
+                Dictionary<string, string> currentSymbols = CircuitManager.Instance.CalculateCurrentSymbols();
+                List<ElementData> elements = CircuitManager.Instance.GetAllElementsInLoop(loop);
 
-                List<string> vars = givens.Keys.ToList();
-                vars.AddRange(CircuitManager.Instance.CalculateCurrentSymbols().Values.Distinct());
+                var equations = new List<string>();
+                equations.Add(secondKirchhoff);
 
-                string res = CircuitManager.Instance.SolveLinearSystem(givens_eq, vars.Distinct().ToList(), element);
+                foreach (var el in elements)
+                {
+                    foreach (var kvp in el.GetAllValues())
+                    {
+                        equations.Add($"{kvp.Key}={kvp.Value}");
+                    }
+                }
+
+                string res = CircuitManager.Instance.SolveLinearSystem(equations, element);
                 Logger.Info(res);
                 infoPanelText += $"[b]2nd Kirchoff:[/b] {secondKirchhoff}\n";
                 infoPanelText += $"[b]Voltage value:[/b] {res}\n";

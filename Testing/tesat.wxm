@@ -1,0 +1,100 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 23.04.1 ] */
+/* [wxMaxima: input   start ] */
+
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+grind([linsolve_params: true, globalsolve: true]);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+psubst(1, I2, psubst(10, R8, [Ur8=R8*I2, + Ur8 - 0 = 0]));
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+grind(ev(Ur4,linsolve(fullratsubst([R4=10, Ur4=R4*I1, R1=10, Ur1=R1*I1, U7=5], [ + Ur4 - Ur1 - U7 = 0]), [I1])));
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+R1:2;
+U7:5;
+R4:10;
+linsolve([ Ur4=R4*I1, Ur1=R1*I1, + Ur4 - Ur1 - U7 = 0], [Ur1,I1,Ur4]);
+kill(all);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+kill(all);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+
+linsolve([R1=2,R4=10,U7=5,Ur1=R1*I1,Ur4=R4*I1, + Ur1 - Ur4 + U7 = 0], [R1,R4,U7,Ur1,Ur4,I1]);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+kill(all)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+(%i1)	kill(all)$                    equations.Add($"{kvp.Key}={kvp.Value}");
+
+                    equations.Add($"{kvp.Key}={kvp.Value}");
+grind(kill(all)$R4:10$Ur4:R4*I1$R1:10$Ur1:R1*I1$U7:5$ev(Ur4, linsolve([ + Ur4 - Ur1 - U7 = 0], [R4,Ur4,R1,Ur1,U7,I1])));
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+
+R1:10;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+U1:R1*I1;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+
+
+
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+kill(all);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+R4:10;
+Ur4:R4*I1;
+R1:10;
+U7:5;
+ev(Ur4, linsolve([ + Ur4 - Ur1 - U7 = 0], [R4,Ur4,R1,Ur1,U7,I1]));
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+
+/* [wxMaxima: input   end   ] */
+
+
+
+/* Old versions of Maxima abort on loading files that end in a comment. */
+"Created with wxMaxima 23.04.1"$
