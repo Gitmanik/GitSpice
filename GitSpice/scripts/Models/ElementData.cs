@@ -29,7 +29,7 @@ public class ElementData
             case "Resistor":
                 return $"Ur{Id}";
             case "Current_Source":
-                return "0";
+                return $"U{Id}";
             case "Pole":
                 return null;
             default:
@@ -66,7 +66,7 @@ public class ElementData
             case "Current_Source":
                 return new Dictionary<string, string>()
                 {
-                    {GetCurrent(), Data["Amount"]},
+                    {GetCurrent(), Data["Amount"]}
                 };
             case "Pole":
                 return null;
