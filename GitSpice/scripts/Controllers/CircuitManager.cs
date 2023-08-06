@@ -713,7 +713,7 @@ public partial class CircuitManager : Node
             Logger.Trace($"Element ports: {e.Ports[0].PortId} {e.Ports[1].PortId}, ports: {port1} {port2}");
 
             string sign = "+";
-            if (e.Ports[0].PortId != port1) // TODO: Make more sophisticated signing
+            if (e.Ports[0].PortId != port1 && e.Data.Type != "Resistor") // TODO: Make more sophisticated signing
                 sign = "-";
 
             string eq_part = $" {sign} {e.Data.GetVoltage()}";
