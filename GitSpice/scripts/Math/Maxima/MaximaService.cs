@@ -88,6 +88,11 @@ public class MaximaService
         {
             result += MaximaProcess.StandardOutput.ReadLine();
 
+            if (result.Contains("debug"))
+            {
+                Logger.Error($"Maxima error!\n{result}");
+                throw new Exception($"Maxima Error: {result}");
+            }
             if (result.Contains("incorrect"))
             {
                 result += MaximaProcess.StandardOutput.ReadLine();
