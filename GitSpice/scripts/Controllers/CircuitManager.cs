@@ -123,7 +123,7 @@ public partial class CircuitManager : Node
     /// </summary>
     /// <param name="portId"Port Id</param>
     /// <returns>List od Port Ids</returns>
-    List<string> GetConnectedPorts(string portId) => FindBoundConnections(portId).ConvertAll(x => portId == x.Port1.PortId ? x.Port2.PortId : x.Port1.PortId);
+    public List<string> GetConnectedPorts(string portId) => FindBoundConnections(portId).ConvertAll(x => portId == x.Port1.PortId ? x.Port2.PortId : x.Port1.PortId);
 
     /// <summary>
     /// Returns all ports in Circuit
@@ -505,7 +505,7 @@ public partial class CircuitManager : Node
 
         path.Reverse();
 
-        Logger.Debug($"Loop {begin}->{end}: {string.Join(',', path)}");
+        Logger.Debug($"Loop {begin}->{end}: {path.JoinList()}");
 
         return path;
     }
@@ -590,7 +590,7 @@ public partial class CircuitManager : Node
                 currentPort = traversed;
             }
 
-            Logger.Trace($"Generated path: {string.Join(',', elementPath)}");
+            Logger.Trace($"Generated path: {elementPath.JoinList()}");
             if (elementPath.Count > 0)
                 all.Add(elementPath);
         }
@@ -615,18 +615,14 @@ public partial class CircuitManager : Node
                     if (!generatedPaths.Any(x => x.Intersect(fullPath).Count() == x.Count()))
                     {
                         generatedPaths.Add(fullPath.ToHashSet().ToList());
-                        Logger.Trace($"Connected {string.Join(',', elementPath1)} with {string.Join(',', elementPath2)}");
+                        Logger.Trace($"Connected {elementPath1.JoinList()} with {elementPath2.JoinList()}");
                     }
                     break;
                 }
             }
         }
 
-        Logger.Trace("All generated paths");
-        foreach (List<string> path in generatedPaths)
-        {
-            Logger.Trace(string.Join(',', path));
-        }
+        Logger.Trace($"All generated paths:\n {generatedPaths.ConvertAll(x => x.JoinList())}");
 
         Dictionary<string, string> symbols = new Dictionary<string, string>();
 
@@ -635,7 +631,7 @@ public partial class CircuitManager : Node
         foreach (List<string> path in generatedPaths)
         {
             string symbol = $"I{currentSymbolCtr}";
-            Logger.Trace($"Parsing path {string.Join(',', path)} with symbol {symbol}");
+            Logger.Trace($"Parsing path {path.JoinList()} with symbol {symbol}");
             List<string> path_copy = new List<string>(path);
 
             while (path_copy.Count > 0)

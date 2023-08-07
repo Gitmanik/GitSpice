@@ -4,6 +4,7 @@ using System.Linq;
 using Gitmanik.Controllers;
 using Gitmanik.Models;
 using Gitmanik.Utils;
+using Gitmanik.Utils.Extensions;
 using Godot;
 
 public partial class UserInputController : Control
@@ -189,7 +190,7 @@ public partial class UserInputController : Control
             }
         }
 
-        Logger.Debug($"Generated junctions:\n{string.Join('\n', junctions.ConvertAll<string>(x => string.Join(',', x)))}");
+        Logger.Debug($"Generated junctions:\n{string.Join('\n', junctions.ConvertAll<string>(x => x.JoinList()))}");
     }
 
     public void ResetConnecting()
