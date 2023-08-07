@@ -47,6 +47,33 @@ public partial class Element : Control
         // TODO: Make them labels
         if (AppController.Settings.Data.DebugDrawIds && OS.GetName() != "macOS")
             DrawString(ThemeDB.FallbackFont, IdPosition, Data.Id, HorizontalAlignment.Center, fontSize: IdFontSize);
+
+        // the line starting and ending points
+        Vector2 startingPoint = Ports[0].Position + new Vector2(16, 25);
+        Vector2 endingPoint = Ports[1].Position + new Vector2(0, 25);
+        DrawLine(startingPoint, endingPoint, Colors.Cyan, 2);
+
+        // the arrow size and flatness
+        float arrowSize = 10f;
+        float flatness = 0.5f;
+
+        // calculate the direction vector
+        Vector2 direction = (endingPoint - startingPoint).Normalized();
+
+        // calculate the side vectors
+        Vector2 side1 = new Vector2(-direction.Y, direction.X);
+        Vector2 side2 = new Vector2(direction.Y, -direction.X);
+
+        // calculate the T-junction points
+        Vector2 e1 = endingPoint + side1 * arrowSize * flatness;
+        Vector2 e2 = endingPoint + side2 * arrowSize * flatness;
+
+        // calculate the arrow edges
+        Vector2 p1 = e1 - direction * arrowSize;
+        Vector2 p2 = e2 - direction * arrowSize;
+
+        // draw the arrow sides as a polygon
+        DrawPolygon(new Vector2[] { endingPoint, p1, p2 }, new[] { Colors.Cyan });
     }
 
     public void _TextureRectGuiInput(InputEvent @event)
