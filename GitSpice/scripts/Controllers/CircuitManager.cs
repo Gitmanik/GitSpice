@@ -754,13 +754,4 @@ public partial class CircuitManager : Node
 
         return elements;
     }
-
-    public string SolveLinearSystem(List<string> equations, Element solveFor)
-    {
-        string command = $"ev({solveFor.Data.GetVoltage()}, solve([{string.Join(", ", equations)}]));";
-
-        Logger.Debug($"Maxima command: {command}");
-
-        return AppController.Maxima.Evaluate(command);
-    }
 }

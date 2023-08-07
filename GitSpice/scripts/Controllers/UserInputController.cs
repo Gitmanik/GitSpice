@@ -262,7 +262,7 @@ public partial class UserInputController : Control
                     }
                 }
 
-                string res = CircuitManager.Instance.SolveLinearSystem(equations, element);
+                decimal res = AppController.Maxima.SolveLinearSystem(equations)[element.Data.GetVoltage()];
                 Logger.Info(res);
                 infoPanelText += $"[b]2nd Kirchoff:[/b] {secondKirchhoff}\n";
                 infoPanelText += $"[b]Voltage value:[/b] {res}\n";

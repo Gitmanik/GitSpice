@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
@@ -12,7 +13,7 @@ public class MaximaService
 
     private static readonly string[] StartupCommands =
     {
-        "[linsolve_params: false, globalsolve: false]"
+        "[linsolve_params: false, globalsolve: false, numer: true]"
     };
 
     public MaximaService(string pathToMaxima)
@@ -56,6 +57,21 @@ public class MaximaService
             CreateNoWindow = true
         };
         return Process.Start(startInfo);
+    }
+
+    public Dictionary<string, decimal> SolveLinearSystem(List<string> equations)
+    {
+        string command = $"solve([{string.Join(", ", equations)}])";
+        string result = Evaluate(command);
+
+        result = result.TrimStart('[').TrimEnd(']');
+        Dictionary<string, decimal> roots = new Dictionary<string, decimal>();
+        foreach (var res in result.Split(','))
+        {
+            string[] x = res.Split('=');
+            roots.Add(x[0].Trim(), Convert.ToDecimal(x[1].Trim(), System.Globalization.CultureInfo.InvariantCulture));
+        }
+        return roots;
     }
 
     public string Evaluate(string expr)
