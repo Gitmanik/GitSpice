@@ -48,6 +48,9 @@ public partial class Element : Control
         if (AppController.Settings.Data.DebugDrawIds && OS.GetName() != "macOS")
             DrawString(ThemeDB.FallbackFont, IdPosition, Data.Id, HorizontalAlignment.Center, fontSize: IdFontSize);
 
+
+        if (Ports.Count == 1)
+            return;
         // the line starting and ending points
         Vector2 startingPoint = Ports[0].Position + new Vector2(16, 25);
         Vector2 endingPoint = Ports[1].Position + new Vector2(0, 25);
