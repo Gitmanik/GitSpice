@@ -512,11 +512,6 @@ public partial class CircuitManager : Node
 
     public Dictionary<string, string> CalculateCurrentSymbols()
     {
-        string TraverseElement(ElementData el, string portId)
-        {
-            var l = el.Ports.Find(x => x != portId);
-            return l ?? portId;
-        }
         string GetElementIdForPort(string portId) => FindElementPort(portId).ParentElement.Data.Id;
 
         List<List<string>> all = new List<List<string>>();
@@ -590,7 +585,7 @@ public partial class CircuitManager : Node
                 Logger.Trace($"Connected port to {currentElementId}: {connectedPort}");
                 Logger.Trace($"Adding port {connectedPort} to list");
                 elementPath.Add(connectedPort);
-                string traversed = TraverseElement(FindElementPort(connectedPort).ParentElement.Data, connectedPort);
+                string traversed = FindElementPort(connectedPort).ParentElement.Data.Traverse(connectedPort);
                 Logger.Trace($"Traversing from {currentPort} to {traversed}");
                 currentPort = traversed;
             }
@@ -713,7 +708,7 @@ public partial class CircuitManager : Node
             Logger.Trace($"Element ports: {e.Ports[0].PortId} {e.Ports[1].PortId}, ports: {port1} {port2}");
 
             string sign = "+";
-            if (e.Ports[0].PortId != port1 && e.Data.Type != "Resistor") // TODO: Make more sophisticated signing
+            if (!e.Data.CurrentDirection(port1))
                 sign = "-";
 
             string eq_part = $" {sign} {e.Data.GetVoltage()}";

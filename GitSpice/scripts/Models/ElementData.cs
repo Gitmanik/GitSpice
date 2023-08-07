@@ -72,4 +72,24 @@ public class ElementData
                 throw new NotImplementedException();
         }
     }
+
+    /// <summary>
+    /// Checks if current flow is in right direction (from left to right)
+    /// </summary>
+    /// <param name="port1">Port on the left of connection</param>
+    /// <returns>True if port is on the left</returns>
+    public bool CurrentDirection(string port)
+    {
+        return port == Ports[0];
+    }
+
+    public string Traverse(string port)
+    {
+        if (Ports.Count == 1)
+            return port;
+        if (port == Ports[0])
+            return Ports[1];
+        else return Ports[0];
+    }
+
 }
