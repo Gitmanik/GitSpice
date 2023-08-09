@@ -5,11 +5,11 @@ using System.IO;
 
 namespace Gitmanik.Math;
 
-public class MaximaService
+public class MaximaService : IMathService
 {
-    private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+    private readonly static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     private Process MaximaProcess = null;
-    private string PathToMaxima;
+    private readonly string PathToMaxima;
 
     private static readonly string[] StartupCommands =
     {
@@ -38,27 +38,6 @@ public class MaximaService
             Evaluate(command);
     }
 
-    private Process SpawnMaximaProcess()
-    {
-        Logger.Debug("Spawning new Maxima process");
-        if (MaximaProcess != null)
-        {
-            Logger.Debug("Disposing existing Maxima process");
-            MaximaProcess.Dispose();
-        }
-        var startInfo = new ProcessStartInfo(PathToMaxima, @"-eval ""(cl-user::run)"" -f -- -very-quiet")
-        {
-            WorkingDirectory = Path.GetDirectoryName(PathToMaxima),
-            UseShellExecute = false,
-            WindowStyle = ProcessWindowStyle.Hidden,
-            RedirectStandardInput = true,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            CreateNoWindow = true
-        };
-        return Process.Start(startInfo);
-    }
-
     public Dictionary<string, decimal> SolveLinearSystem(List<string> equations)
     {
         string command = $"solve([{string.Join(", ", equations)}])";
@@ -74,7 +53,14 @@ public class MaximaService
         return roots;
     }
 
-    public string Evaluate(string expr)
+    public void Close()
+    {
+        Logger.Debug("Killing Maxima process");
+        MaximaProcess?.Kill();
+        Logger.Trace("Killed Maxima process.");
+    }
+
+    private string Evaluate(string expr)
     {
         expr = expr.Trim(';');
 
@@ -108,10 +94,24 @@ public class MaximaService
         return result;
     }
 
-    public void KillProcess()
+    private Process SpawnMaximaProcess()
     {
-        Logger.Debug("Killing Maxima process");
-        MaximaProcess?.Kill();
-        Logger.Trace("Killed Maxima process.");
+        Logger.Debug("Spawning new Maxima process");
+        if (MaximaProcess != null)
+        {
+            Logger.Debug("Disposing existing Maxima process");
+            MaximaProcess.Dispose();
+        }
+        var startInfo = new ProcessStartInfo(PathToMaxima, @"-eval ""(cl-user::run)"" -f -- -very-quiet")
+        {
+            WorkingDirectory = Path.GetDirectoryName(PathToMaxima),
+            UseShellExecute = false,
+            WindowStyle = ProcessWindowStyle.Hidden,
+            RedirectStandardInput = true,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            CreateNoWindow = true
+        };
+        return Process.Start(startInfo);
     }
 }

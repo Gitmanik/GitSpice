@@ -10,7 +10,7 @@ public partial class AppController : Node
     private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     public static AppController Instance { get; private set; }
     public static SettingsController<Settings> Settings { get; private set; }
-    public static MaximaService Maxima { get; private set; }
+    public static IMathService MathService { get; private set; }
 
     public override void _EnterTree()
     {
@@ -23,7 +23,7 @@ public partial class AppController : Node
 
         LogController.Configure(ProjectSettings.GlobalizePath("user://NLog/"));
         Settings = new SettingsController<Settings>(ProjectSettings.GlobalizePath("user://settings.json"));
-        Maxima = new MaximaService(Settings.Data.PathToMaxima);
+        MathService = new MaximaService(Settings.Data.PathToMaxima);
 
         GetTree().AutoAcceptQuit = false;
     }
@@ -36,7 +36,7 @@ public partial class AppController : Node
         Logger.Info("Closing app");
 
         Settings.SaveData();
-        Maxima.KillProcess();
+        MathService.Close();
 
         GetTree().Quit();
     }

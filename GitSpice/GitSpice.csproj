@@ -6,7 +6,7 @@
   <ItemGroup>
     <PackageReference Include="NLog" Version="5.1.3" />
     <Reference Include="ComputerAlgebra">
-      <HintPath>./scripts/Math/ComputerAlgebra.dll</HintPath>
+      <HintPath>./scripts/Math/ComputerAlgebra/ComputerAlgebra.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>
