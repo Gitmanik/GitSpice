@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Gitmanik.Controllers;
+using Gitmanik.Math;
 using Gitmanik.Models;
 using Gitmanik.Utils;
 using Gitmanik.Utils.Extensions;
@@ -247,13 +248,76 @@ public partial class UserInputController : Control
 
             if (isSelected)
             {
-                string secondKirchhoff = CircuitManager.Instance.Calculate2ndKirchhoffLaw(loop);
-
                 Dictionary<string, string> currentSymbols = CircuitManager.Instance.CalculateCurrentSymbols();
-                List<ElementData> elements = CircuitManager.Instance.GetAllElementsInLoop(loop);
+                List<ElementData> elements = CircuitManager.Instance.GetAllElementData();
 
                 var equations = new List<string>();
-                equations.Add(secondKirchhoff);
+                var kirchhoffs = new List<string>();
+
+                foreach (ElementData el in CircuitManager.Instance.GetAllElementData())
+                {
+                    if (el.Ports.Count == 1)
+                        continue;
+
+                    Logger.Info($"{loop.JoinList()} {el.Ports.JoinList()} {el.Ports.Intersect(loop).ToList().Count}");
+
+                    bool existing = false;
+                    foreach (var k in kirchhoffs)
+                        if (el.Ports.Intersect(loop).ToList().Count == el.Ports.Count) // Same loop as original element, skip
+                            existing = true;
+
+                    if (existing)
+                        continue;
+                    kirchhoffs.Add(CircuitManager.Instance.Calculate2ndKirchhoffLaw(CircuitManager.Instance.CalculateLoop(el.Ports[0], el.Ports[1])));
+                }
+                equations.AddRange(kirchhoffs);
+
+                List<string> visited = new List<string>();
+
+                HashSet<string> deep(string polePort)
+                {
+                    Logger.Info($"deep search for {polePort}, visited: {visited.JoinList()}");
+                    var res = new HashSet<string>();
+
+                    foreach (string connectedToPole in CircuitManager.Instance.GetConnectedPorts(polePort))
+                    {
+                        Logger.Info($"{connectedToPole}, {visited.JoinList()}");
+                        if (visited.Contains(connectedToPole))
+                            continue;
+                        ElementData data = CircuitManager.Instance.FindElementPort(connectedToPole).ParentElement.Data;
+                        Logger.Info($"visiting {connectedToPole}, {visited.JoinList()}");
+                        visited.Add(connectedToPole);
+                        if (data.Type == "Pole")
+                            res.UnionWith(deep(connectedToPole));
+                        else res.Add($"{currentSymbols[data.Id]}");
+                    }
+
+                    return res;
+
+                }
+
+                foreach (ElementData el in CircuitManager.Instance.GetAllElementData())
+                {
+                    if (el.Type == "Pole" && CircuitManager.Instance.GetConnectedPorts(el.Ports[0]).Count > 2)
+                    {
+                        string eq = "";
+                        Logger.Info(el.Ports[0]);
+                        foreach (string port in CircuitManager.Instance.GetConnectedPorts(el.Ports[0]))
+                        {
+                            if (port == el.Ports[0])
+                                continue;
+                            visited.Add(port);
+                            eq += deep(port).JoinList(" + ");
+                        }
+                        if (eq != "")
+                        {
+                            eq += " = 0";
+                            equations.Add(eq);
+
+                        }
+                        Logger.Info(eq);
+                    }
+                }
 
                 foreach (var el in elements)
                 {
@@ -263,10 +327,12 @@ public partial class UserInputController : Control
                     }
                 }
 
-                decimal res = AppController.Maxima.SolveLinearSystem(equations)[element.Data.GetVoltage()];
-                Logger.Info(res);
-                infoPanelText += $"[b]2nd Kirchoff:[/b] {secondKirchhoff}\n";
-                infoPanelText += $"[b]Voltage value:[/b] {res}\n";
+                foreach (string ss in equations)
+                    Logger.Info(ss);
+
+                var res = AppController.MathService.SolveLinearSystem(equations);
+                infoPanelText += $"[b]Voltage:[/b] {res[element.Data.GetVoltage()]}V\n";
+                infoPanelText += $"[b]Current:[/b] {currentSymbols[element.Data.Id]}: {res[element.Data.GetCurrent()]}A\n";
                 infoPanelText += string.Join('\n', element.Data.Data.ToList().ConvertAll(x => $"[b]{x.Key}:[/b] {x.Value}"));
             }
         }

@@ -745,4 +745,10 @@ public partial class CircuitManager : Node
 
         return elements;
     }
+
+    public List<ElementData> GetAllElementData()
+    {
+        return Circuit.Elements;
+    }
+
 }

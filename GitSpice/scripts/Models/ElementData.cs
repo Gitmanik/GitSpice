@@ -67,7 +67,7 @@ public class ElementData
                     {GetCurrent(), Data["Amount"]}
                 };
             case "Pole":
-                return null;
+                return new Dictionary<string, string>();
             default:
                 throw new NotImplementedException();
         }
